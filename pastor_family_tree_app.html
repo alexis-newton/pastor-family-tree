@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Pastor Family Tree</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --terracotta: #C1603A;
+    --terracotta-light: #E8A882;
+    --terracotta-dark: #8B3E22;
+    --parchment: #F5EDD8;
+    --parchment-dark: #E8D9B8;
+    --olive: #5C6B3A;
+    --olive-light: #8A9E5C;
+    --olive-dark: #3A4524;
+    --gold: #B8892A;
+    --gold-light: #D4A94A;
+    --cream: #FAF6ED;
+    --ink: #2A1F0E;
+    --ink-light: #5C4A2A;
+    --stone: #8B8070;
+    --stone-light: #C4B8A8;
+  }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--ink);
+    border-bottom: 3px solid var(--gold);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    color: var(--parchment);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .nav-brand span { color: var(--gold-light); }
+  .nav-links { display: flex; gap: 0.5rem; align-items: center; }
+  .nav-btn {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--stone-light);
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { color: var(--parchment); border-color: var(--stone); }
+  .nav-btn.active { color: var(--gold-light); border-color: var(--gold); }
+  .nav-admin-btn {
+    background: var(--terracotta-dark);
+    border: 1px solid var(--terracotta);
+    color: var(--parchment);
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .nav-admin-btn:hover { background: var(--terracotta); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HOME PAGE */
+  .home-hero {
+    background: linear-gradient(160deg, var(--ink) 0%, var(--ink-light) 100%);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(184,137,42,0.04) 40px, rgba(184,137,42,0.04) 80px);
+  }
+  .hero-ornament {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: var(--parchment);
+    font-weight: 700;
+    line-height: 1.15;
+    position: relative;
+  }
+  .hero-title span { color: var(--gold-light); }
+  .hero-sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--stone-light);
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    position: relative;
+  }
+  .hero-divider {
+    width: 80px;
+    height: 2px;
+    background: var(--gold);
+    margin: 1.5rem auto;
+    position: relative;
+  }
+  .hero-origins {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .origin-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(184,137,42,0.3);
+    border-radius: 30px;
+    padding: 8px 18px;
+    color: var(--parchment-dark);
+    font-size: 0.875rem;
+    letter-spacing: 0.04em;
+  }
+  .origin-flag { font-size: 1.2rem; }
+
+  .home-cta {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--parchment);
+    border-bottom: 1px solid var(--parchment-dark);
+  }
+  .cta-btn {
+    background: var(--terracotta);
+    color: var(--cream);
+    border: none;
+    padding: 14px 36px;
+    font-family: 'Lato', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 700;
+  }
+  .cta-btn:hover { background: var(--terracotta-dark); }
+
+  .home-about {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+  .section-rule {
+    width: 50px; height: 2px;
+    background: var(--gold);
+    margin: 0.75rem auto 1.5rem;
+  }
+  .home-about p {
+    color: var(--ink-light);
+    line-height: 1.8;
+    font-size: 1.05rem;
+  }
+
+  .heritage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 0 2rem 4rem;
+  }
+  .heritage-card {
+    background: var(--parchment);
+    border: 1px solid var(--parchment-dark);
+    border-top: 3px solid var(--terracotta);
+    border-radius: 6px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .heritage-card .flag { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .heritage-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+  .heritage-card p { font-size: 0.85rem; color: var(--stone); line-height: 1.6; }
+
+  /* TREE PAGE */
+  .tree-header {
+    background: var(--parchment);
+    border-bottom: 1px solid var(--parchment-dark);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .tree-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+  }
+  .view-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--parchment-dark);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .toggle-btn {
+    background: var(--cream);
+    border: none;
+    padding: 8px 18px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--stone);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-right: 1px solid var(--parchment-dark);
+  }
+  .toggle-btn:last-child { border-right: none; }
+  .toggle-btn.active { background: var(--ink); color: var(--parchment); }
+
+  .tree-container { padding: 2rem; overflow: auto; }
+
+  /* CLASSIC TREE VIEW */
+  .classic-tree { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .tree-generation { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 0; flex-wrap: wrap; }
+  .gen-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--stone);
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+  .tree-connectors { display: flex; justify-content: center; height: 32px; position: relative; }
+
+  /* NODE CARD */
+  .person-node {
+    background: var(--parchment);
+    border: 1.5px solid var(--parchment-dark);
+    border-radius: 8px;
+    padding: 10px 14px;
+    min-width: 130px;
+    max-width: 160px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .person-node:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(42,31,14,0.12); }
+  .person-node.selected { border-color: var(--terracotta); background: #FDF0E8; }
+  .person-node .avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    background: var(--olive);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; color: var(--cream);
+    font-weight: 700;
+    overflow: hidden;
+    border: 2px solid var(--gold);
+  }
+  .person-node .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .person-node .name {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .person-node .dates {
+    font-size: 0.7rem;
+    color: var(--stone);
+    margin-top: 3px;
+  }
+  .person-node .origin-dot {
+    position: absolute;
+    top: 6px; right: 8px;
+    font-size: 0.7rem;
+  }
+
+  /* EXPANDABLE TREE */
+  .expand-tree { max-width: 900px; margin: 0 auto; }
+  .expand-node {
+    margin-bottom: 4px;
+  }
+  .expand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--parchment);
+    border: 1px solid var(--parchment-dark);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .expand-row:hover { border-color: var(--gold); background: #FBF5E6; }
+  .expand-toggle {
+    width: 20px; height: 20px;
+    background: var(--terracotta);
+    color: var(--cream);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .expand-toggle.open { transform: rotate(90deg); }
+  .expand-toggle.leaf { background: var(--stone-light); }
+  .expand-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--olive);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; color: var(--cream); font-weight: 700;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid var(--gold);
+  }
+  .expand-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .expand-info { flex: 1; }
+  .expand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .expand-meta { font-size: 0.75rem; color: var(--stone); }
+  .expand-view-btn {
+    background: none;
+    border: 1px solid var(--parchment-dark);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    color: var(--terracotta);
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    transition: all 0.15s;
+  }
+  .expand-view-btn:hover { background: var(--terracotta); color: var(--cream); border-color: var(--terracotta); }
+  .expand-children {
+    margin-left: 28px;
+    margin-top: 4px;
+    border-left: 2px solid var(--parchment-dark);
+    padding-left: 12px;
+  }
+
+  /* PROFILE MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(42,31,14,0.5);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .modal {
+    background: var(--cream);
+    border-radius: 10px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 1px solid var(--parchment-dark);
+  }
+  .modal-header {
+    background: var(--ink);
+    padding: 1.5rem;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .modal-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--olive);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.75rem; color: var(--cream); font-weight: 700;
+    border: 3px solid var(--gold);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .modal-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--parchment); font-weight: 700; }
+  .modal-dates { font-size: 0.85rem; color: var(--stone-light); margin-top: 2px; }
+  .modal-body { padding: 1.5rem; }
+  .modal-field { margin-bottom: 1rem; }
+  .modal-field label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); font-weight: 700; display: block; margin-bottom: 3px; }
+  .modal-field p { color: var(--ink-light); font-size: 0.95rem; line-height: 1.6; }
+  .modal-close {
+    background: none; border: 1px solid rgba(255,255,255,0.2); color: var(--parchment);
+    padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;
+    margin-left: auto; font-family: 'Lato', sans-serif;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.1); }
+
+  /* ADMIN */
+  .admin-overlay {
+    position: fixed; inset: 0;
+    background: rgba(42,31,14,0.6);
+    z-index: 300;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .admin-panel {
+    background: var(--cream);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 620px;
+    max-height: 92vh;
+    overflow-y: auto;
+    border: 2px solid var(--terracotta);
+  }
+  .admin-header {
+    background: var(--ink);
+    padding: 1rem 1.5rem;
+    border-radius: 8px 8px 0 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .admin-header h3 { font-family: 'Playfair Display', serif; color: var(--parchment); font-size: 1.15rem; }
+  .admin-body { padding: 1.5rem; }
+  .admin-member-list { margin-bottom: 1.5rem; }
+  .admin-member-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: var(--parchment);
+    border: 1px solid var(--parchment-dark);
+    border-radius: 6px;
+    margin-bottom: 6px;
+  }
+  .admin-member-name { flex: 1; font-size: 0.9rem; color: var(--ink); font-family: 'Playfair Display', serif; }
+  .admin-member-gen { font-size: 0.75rem; color: var(--stone); }
+  .admin-edit-btn { background: none; border: 1px solid var(--olive); color: var(--olive); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-family: 'Lato', sans-serif; }
+  .admin-delete-btn { background: none; border: 1px solid var(--terracotta); color: var(--terracotta); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-family: 'Lato', sans-serif; }
+  .admin-add-btn {
+    background: var(--olive);
+    color: var(--cream);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .admin-add-btn:hover { background: var(--olive-dark); }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-full { grid-column: 1 / -1; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-light); font-weight: 700; }
+  .form-group input, .form-group select, .form-group textarea {
+    background: var(--parchment);
+    border: 1px solid var(--parchment-dark);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-actions { display: flex; gap: 10px; margin-top: 1rem; }
+  .btn-save { background: var(--terracotta); color: var(--cream); border: none; padding: 10px 24px; border-radius: 4px; cursor: pointer; font-family: 'Lato', sans-serif; font-weight: 700; font-size: 0.9rem; }
+  .btn-cancel { background: none; border: 1px solid var(--stone-light); color: var(--stone); padding: 10px 24px; border-radius: 4px; cursor: pointer; font-family: 'Lato', sans-serif; font-size: 0.9rem; }
+  .btn-save:hover { background: var(--terracotta-dark); }
+
+  /* LOGIN */
+  .login-form { padding: 1.5rem; }
+  .login-form h4 { font-family: 'Playfair Display', serif; color: var(--ink); margin-bottom: 1rem; }
+  .login-form input { width: 100%; padding: 10px; border: 1px solid var(--parchment-dark); border-radius: 4px; background: var(--parchment); font-family: 'Lato', sans-serif; font-size: 0.95rem; margin-bottom: 10px; outline: none; }
+  .login-form input:focus { border-color: var(--gold); }
+  .login-error { color: var(--terracotta); font-size: 0.85rem; margin-bottom: 8px; }
+  .login-hint { font-size: 0.75rem; color: var(--stone); margin-top: 6px; }
+
+  /* EMPTY */
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--stone); }
+  .empty-state p { font-size: 1rem; }
+  .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+
+  svg.connector-line { overflow: visible; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">&#10022; The <span>Pastor</span> Family Tree</div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('home')">Home</button>
+    <button class="nav-btn" onclick="showPage('tree')">Family Tree</button>
+    <button class="nav-admin-btn" onclick="openAdmin()">Admin</button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+  <div class="home-hero">
+    <div class="hero-ornament">&#9775;</div>
+    <h1 class="hero-title">The <span>Pastor</span> Family Tree</h1>
+    <p class="hero-sub">Rooted across continents. Bound by blood. United by story.</p>
+    <div class="hero-divider"></div>
+    <div class="hero-origins">
+      <div class="origin-badge"><span class="origin-flag">🇪🇨</span> Ecuador</div>
+      <div class="origin-badge"><span class="origin-flag">🇮🇹</span> Sicily, Italy</div>
+      <div class="origin-badge"><span class="origin-flag">🇪🇸</span> Albarracín, Spain</div>
+    </div>
+  </div>
+
+  <div class="home-cta">
+    <p style="color:var(--ink-light); margin-bottom:1rem; font-style:italic; font-family:'Playfair Display',serif;">Explore the generations that shaped the Pastor family</p>
+    <button class="cta-btn" onclick="showPage('tree')">Explore the Family Tree</button>
+  </div>
+
+  <div class="home-about">
+    <h2 class="section-title">Our Heritage</h2>
+    <div class="section-rule"></div>
+    <p>The Pastor family story spans three continents and centuries of history — from the ancient hilltop city of Albarracín in Spain, through the sun-drenched landscapes of Sicily, to the vibrant culture of Ecuador. This tree is a living record of the people, places, and moments that brought us here.</p>
+  </div>
+
+  <div class="heritage-grid">
+    <div class="heritage-card">
+      <div class="flag">🇪🇨</div>
+      <h3>Ecuador</h3>
+      <p>The heart of the modern Pastor family, rooted in South American tradition and warmth.</p>
+    </div>
+    <div class="heritage-card">
+      <div class="flag">🇮🇹</div>
+      <h3>Sicily, Italy</h3>
+      <p>Ancient Mediterranean lineage from the island crossroads of Europe and Africa.</p>
+    </div>
+    <div class="heritage-card">
+      <div class="flag">🇪🇸</div>
+      <h3>Albarracín, Spain</h3>
+      <p>One of Spain's most storied medieval cities, source of the family's Iberian roots.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TREE PAGE -->
+<div id="page-tree" class="page">
+  <div class="tree-header">
+    <h2>Pastor Family Tree</h2>
+    <div class="view-toggle">
+      <button class="toggle-btn active" id="btn-classic" onclick="setView('classic')">Classic View</button>
+      <button class="toggle-btn" id="btn-expand" onclick="setView('expand')">Expandable View</button>
+    </div>
+  </div>
+  <div class="tree-container">
+    <div id="classic-view"></div>
+    <div id="expand-view" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div id="profile-modal" class="modal-overlay" style="display:none;" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-avatar" id="modal-avatar"></div>
+      <div style="flex:1;">
+        <div class="modal-title" id="modal-name"></div>
+        <div class="modal-dates" id="modal-dates"></div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('profile-modal').style.display='none'">Close</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ADMIN OVERLAY -->
+<div id="admin-overlay" class="admin-overlay" style="display:none;">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <h3>&#9998; Admin Panel &mdash; Pastor Family Tree</h3>
+      <button class="modal-close" onclick="closeAdminPanel()">Close</button>
+    </div>
+    <div id="admin-content"></div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = 'Pastor2024!';
+
+let currentView = 'classic';
+let adminLoggedIn = false;
+let editingId = null;
+
+let members = [
+  { id: 1, name: 'Carlos Pastor', birth: '1930', death: '2005', birthplace: 'Guayaquil, Ecuador', relationship: 'Patriarch', origin: '🇪🇨', bio: 'The family patriarch who built the foundation of the Pastor family in Ecuador. Known for his strength and generosity.', notes: 'Immigrated from the coastal region. Had 4 children.', photo: '', generation: 1, parentId: null },
+  { id: 2, name: 'Rosa Delgado', birth: '1935', death: '2010', birthplace: 'Quito, Ecuador', relationship: 'Matriarch', origin: '🇪🇨', bio: 'A deeply beloved matriarch with Sicilian lineage through her grandmother. She passed down many Italian traditions.', notes: 'Her grandmother emigrated from Sicily in the early 1900s.', photo: '', generation: 1, parentId: null },
+  { id: 3, name: 'Miguel Pastor', birth: '1958', death: '', birthplace: 'Guayaquil, Ecuador', relationship: 'Son of Carlos & Rosa', origin: '🇪🇨', bio: 'Eldest son of Carlos and Rosa. A respected community leader in Guayaquil.', notes: 'Has 3 children.', photo: '', generation: 2, parentId: 1 },
+  { id: 4, name: 'Elena Pastor', birth: '1962', death: '', birthplace: 'Guayaquil, Ecuador', relationship: 'Daughter of Carlos & Rosa', origin: '🇪🇨', bio: 'Elena moved to Albarracín, Spain after marrying and helped trace the family\'s Spanish ancestry.', notes: 'Discovered the Albarracín connection through genealogical research.', photo: '', generation: 2, parentId: 1 },
+  { id: 5, name: 'Luis Pastor', birth: '1985', death: '', birthplace: 'Guayaquil, Ecuador', relationship: 'Son of Miguel', origin: '🇪🇨', bio: 'Current generation, passionate about the family heritage and the one who started this family tree project.', notes: '', photo: '', generation: 3, parentId: 3 },
+  { id: 6, name: 'Sofia Pastor', birth: '1988', death: '', birthplace: 'Guayaquil, Ecuador', relationship: 'Daughter of Miguel', origin: '🇪🇨', bio: 'Lives in Quito and keeps close ties with family.', notes: '', photo: '', generation: 3, parentId: 3 },
+];
+
+let nextId = 7;
+
+function initials(name) {
+  return name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+}
+
+function avatarHTML(m, size=48, fontSize='1.1rem') {
+  const colors = ['var(--olive)', 'var(--terracotta-dark)', 'var(--ink-light)', '#5A6B8A', '#7A5A3A'];
+  const bg = colors[m.id % colors.length];
+  if (m.photo && m.photo.startsWith('data:')) {
+    return `<div style="width:${size}px;height:${size}px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);flex-shrink:0;"><img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;"></div>`;
+  }
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;font-size:${fontSize};color:var(--cream);font-weight:700;border:2px solid var(--gold);flex-shrink:0;">${initials(m.name)}</div>`;
+}
+
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => { if (b.textContent.toLowerCase().includes(p)) b.classList.add('active'); });
+  if (p === 'tree') renderTree();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('classic-view').style.display = v === 'classic' ? '' : 'none';
+  document.getElementById('expand-view').style.display = v === 'expand' ? '' : 'none';
+  document.getElementById('btn-classic').classList.toggle('active', v === 'classic');
+  document.getElementById('btn-expand').classList.toggle('active', v === 'expand');
+  renderTree();
+}
+
+function renderTree() {
+  renderClassic();
+  renderExpand();
+}
+
+function renderClassic() {
+  const container = document.getElementById('classic-view');
+  if (members.length === 0) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127807;</div><p>No family members yet. Use the Admin panel to add members.</p></div>'; return; }
+  const maxGen = Math.max(...members.map(m => m.generation));
+  let html = '<div class="classic-tree">';
+  for (let g = 1; g <= maxGen; g++) {
+    const gens = members.filter(m => m.generation === g);
+    const labels = { 1: 'Grandparents / Founders', 2: 'Parents', 3: 'Current Generation', 4: 'Children', 5: 'Grandchildren' };
+    html += `<div style="width:100%;"><p class="gen-label">${labels[g] || 'Generation ' + g}</p></div>`;
+    html += '<div class="tree-generation">';
+    gens.forEach(m => {
+      const dateStr = m.birth ? (m.death ? `${m.birth} – ${m.death}` : `b. ${m.birth}`) : '';
+      html += `<div class="person-node" onclick="openProfile(${m.id})">
+        <div class="origin-dot">${m.origin || ''}</div>
+        <div class="avatar">${m.photo && m.photo.startsWith('data:') ? `<img src="${m.photo}">` : initials(m.name)}</div>
+        <div class="name">${m.name}</div>
+        <div class="dates">${dateStr}</div>
+      </div>`;
+    });
+    html += '</div>';
+    if (g < maxGen) {
+      html += '<div style="display:flex;justify-content:center;padding:4px 0;"><div style="width:2px;height:28px;background:var(--parchment-dark);"></div></div>';
+    }
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function renderExpand() {
+  const container = document.getElementById('expand-view');
+  if (members.length === 0) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127807;</div><p>No family members yet. Use the Admin panel to add members.</p></div>'; return; }
+  const roots = members.filter(m => !m.parentId || !members.find(x => x.id === m.parentId));
+  container.innerHTML = '<div class="expand-tree">' + roots.map(m => renderExpandNode(m, new Set())).join('') + '</div>';
+}
+
+const openNodes = new Set();
+
+function renderExpandNode(m, visited) {
+  if (visited.has(m.id)) return '';
+  visited.add(m.id);
+  const children = members.filter(c => c.parentId === m.id);
+  const hasChildren = children.length > 0;
+  const isOpen = openNodes.has(m.id);
+  const dateStr = m.birth ? (m.death ? `${m.birth} – ${m.death}` : `b. ${m.birth}`) : '';
+  let html = `<div class="expand-node" id="enode-${m.id}">
+    <div class="expand-row" onclick="toggleExpand(${m.id})">
+      <div class="expand-toggle ${!hasChildren ? 'leaf' : (isOpen ? 'open' : '')}">${hasChildren ? '&#9658;' : '&#9670;'}</div>
+      ${avatarHTML(m, 36, '0.85rem')}
+      <div class="expand-info">
+        <div class="expand-name">${m.origin || ''} ${m.name}</div>
+        <div class="expand-meta">${m.relationship || ''} ${dateStr ? '· ' + dateStr : ''} ${m.birthplace ? '· ' + m.birthplace : ''}</div>
+      </div>
+      <button class="expand-view-btn" onclick="event.stopPropagation(); openProfile(${m.id})">View Profile</button>
+    </div>`;
+  if (hasChildren && isOpen) {
+    html += '<div class="expand-children">' + children.map(c => renderExpandNode(c, visited)).join('') + '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function toggleExpand(id) {
+  if (openNodes.has(id)) openNodes.delete(id);
+  else openNodes.add(id);
+  renderExpand();
+}
+
+function openProfile(id) {
+  const m = members.find(x => x.id === id);
+  if (!m) return;
+  const dateStr = m.birth ? (m.death ? `${m.birth} – ${m.death}` : `Born ${m.birth}`) : 'Dates unknown';
+  const av = document.getElementById('modal-avatar');
+  av.innerHTML = m.photo && m.photo.startsWith('data:') ? `<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;">` : initials(m.name);
+  document.getElementById('modal-name').textContent = m.name;
+  document.getElementById('modal-dates').textContent = dateStr;
+  let body = '';
+  if (m.relationship) body += `<div class="modal-field"><label>Relationship</label><p>${m.relationship}</p></div>`;
+  if (m.birthplace) body += `<div class="modal-field"><label>Birthplace</label><p>${m.origin || ''} ${m.birthplace}</p></div>`;
+  if (m.bio) body += `<div class="modal-field"><label>Biography</label><p>${m.bio}</p></div>`;
+  if (m.notes) body += `<div class="modal-field"><label>Notes</label><p>${m.notes}</p></div>`;
+  const parent = m.parentId ? members.find(x => x.id === m.parentId) : null;
+  if (parent) body += `<div class="modal-field"><label>Parent</label><p>${parent.name}</p></div>`;
+  const kids = members.filter(x => x.parentId === m.id);
+  if (kids.length) body += `<div class="modal-field"><label>Children</label><p>${kids.map(k=>k.name).join(', ')}</p></div>`;
+  document.getElementById('modal-body').innerHTML = body || '<p style="color:var(--stone);">No additional details.</p>';
+  document.getElementById('profile-modal').style.display = 'flex';
+}
+
+function closeModal(e) {
+  if (e.target.id === 'profile-modal') document.getElementById('profile-modal').style.display = 'none';
+}
+
+// ADMIN
+function openAdmin() {
+  document.getElementById('admin-overlay').style.display = 'flex';
+  if (!adminLoggedIn) renderLogin();
+  else renderAdminPanel();
+}
+
+function closeAdminPanel() {
+  document.getElementById('admin-overlay').style.display = 'none';
+  editingId = null;
+}
+
+function renderLogin() {
+  document.getElementById('admin-content').innerHTML = `
+    <div class="login-form">
+      <h4>Admin Login</h4>
+      <div id="login-error" class="login-error" style="display:none;">Incorrect password. Try again.</div>
+      <input type="password" id="admin-pw" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="btn-save" style="width:100%;margin-top:4px;" onclick="doLogin()">Login</button>
+      <p class="login-hint">Default password: <code>Pastor2024!</code> — change this in the code before publishing.</p>
+    </div>`;
+}
+
+function doLogin() {
+  const pw = document.getElementById('admin-pw').value;
+  if (pw === ADMIN_PASSWORD) { adminLoggedIn = true; renderAdminPanel(); }
+  else { document.getElementById('login-error').style.display = 'block'; }
+}
+
+function renderAdminPanel() {
+  let list = members.map(m => `
+    <div class="admin-member-row">
+      ${avatarHTML(m, 32, '0.75rem')}
+      <div class="admin-member-name">${m.name}</div>
+      <div class="admin-member-gen">Gen ${m.generation}</div>
+      <button class="admin-edit-btn" onclick="editMember(${m.id})">Edit</button>
+      <button class="admin-delete-btn" onclick="deleteMember(${m.id})">Delete</button>
+    </div>`).join('');
+
+  document.getElementById('admin-content').innerHTML = `
+    <div class="admin-body">
+      <button class="admin-add-btn" onclick="editMember(null)">+ Add New Family Member</button>
+      <div class="admin-member-list">${list || '<p style="color:var(--stone);font-size:0.9rem;">No members yet.</p>'}</div>
+      <button class="btn-cancel" style="width:100%;" onclick="adminLoggedIn=false;closeAdminPanel()">Log Out</button>
+    </div>`;
+}
+
+function editMember(id) {
+  editingId = id;
+  const m = id ? members.find(x => x.id === id) : null;
+  const parentOptions = members.filter(x => x.id !== id).map(x => `<option value="${x.id}" ${m && m.parentId === x.id ? 'selected' : ''}>${x.name}</option>`).join('');
+  const genOptions = [1,2,3,4,5].map(g => `<option value="${g}" ${m && m.generation === g ? 'selected' : ''}>${g}</option>`).join('');
+
+  document.getElementById('admin-content').innerHTML = `
+    <div class="admin-body">
+      <h4 style="font-family:'Playfair Display',serif;color:var(--ink);margin-bottom:1rem;">${id ? 'Edit' : 'Add'} Family Member</h4>
+      <div class="form-grid">
+        <div class="form-group form-full"><label>Full Name *</label><input id="f-name" value="${m ? m.name : ''}"></div>
+        <div class="form-group"><label>Birth Year</label><input id="f-birth" value="${m ? m.birth : ''}"></div>
+        <div class="form-group"><label>Death Year (if applicable)</label><input id="f-death" value="${m ? m.death : ''}"></div>
+        <div class="form-group form-full"><label>Birthplace</label><input id="f-birthplace" value="${m ? m.birthplace : ''}"></div>
+        <div class="form-group"><label>Relationship / Role</label><input id="f-rel" value="${m ? m.relationship : ''}"></div>
+        <div class="form-group"><label>Heritage Flag (emoji)</label><input id="f-origin" value="${m ? m.origin : '🇪🇨'}" placeholder="🇪🇨 or 🇮🇹 or 🇪🇸"></div>
+        <div class="form-group"><label>Generation *</label><select id="f-gen">${genOptions}</select></div>
+        <div class="form-group"><label>Parent (if applicable)</label><select id="f-parent"><option value="">— None —</option>${parentOptions}</select></div>
+        <div class="form-group form-full"><label>Biography</label><textarea id="f-bio">${m ? m.bio : ''}</textarea></div>
+        <div class="form-group form-full"><label>Notes</label><textarea id="f-notes">${m ? m.notes : ''}</textarea></div>
+        <div class="form-group form-full"><label>Profile Photo (upload image)</label><input type="file" id="f-photo" accept="image/*" onchange="previewPhoto(this)"></div>
+        <div id="photo-preview" class="form-full" style="margin-top:-4px;"></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-save" onclick="saveMember()">Save Member</button>
+        <button class="btn-cancel" onclick="renderAdminPanel()">Cancel</button>
+      </div>
+    </div>`;
+
+  if (m && m.photo) {
+    document.getElementById('photo-preview').innerHTML = `<img src="${m.photo}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);">`;
+  }
+}
+
+let pendingPhoto = null;
+
+function previewPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    pendingPhoto = e.target.result;
+    document.getElementById('photo-preview').innerHTML = `<img src="${pendingPhoto}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveMember() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Name is required.'); return; }
+  const gen = parseInt(document.getElementById('f-gen').value);
+  const parentVal = document.getElementById('f-parent').value;
+  const existingPhoto = editingId ? (members.find(x => x.id === editingId) || {}).photo : '';
+  const data = {
+    name,
+    birth: document.getElementById('f-birth').value.trim(),
+    death: document.getElementById('f-death').value.trim(),
+    birthplace: document.getElementById('f-birthplace').value.trim(),
+    relationship: document.getElementById('f-rel').value.trim(),
+    origin: document.getElementById('f-origin').value.trim(),
+    generation: gen,
+    parentId: parentVal ? parseInt(parentVal) : null,
+    bio: document.getElementById('f-bio').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+    photo: pendingPhoto || existingPhoto || '',
+  };
+  pendingPhoto = null;
+  if (editingId) {
+    const idx = members.findIndex(x => x.id === editingId);
+    members[idx] = { ...members[idx], ...data };
+  } else {
+    members.push({ id: nextId++, ...data });
+  }
+  renderAdminPanel();
+  renderTree();
+}
+
+function deleteMember(id) {
+  if (!confirm('Remove this family member?')) return;
+  members = members.filter(m => m.id !== id);
+  members.forEach(m => { if (m.parentId === id) m.parentId = null; });
+  renderAdminPanel();
+  renderTree();
+}
+</script>
+</body>
+</html>
