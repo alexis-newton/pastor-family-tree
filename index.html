@@ -639,12 +639,12 @@ let adminLoggedIn = false;
 let editingId = null;
 
 let members = [
-  { id: 1, name: 'Carlos Pastor', birth: '1930', death: '2005', birthplace: 'Guayaquil, Ecuador', relationship: 'Patriarch', origin: '🇪🇨', bio: 'The family patriarch who built the foundation of the Pastor family in Ecuador. Known for his strength and generosity.', notes: 'Immigrated from the coastal region. Had 4 children.', photo: '', generation: 1, parentId: null },
-  { id: 2, name: 'Rosa Delgado', birth: '1935', death: '2010', birthplace: 'Quito, Ecuador', relationship: 'Matriarch', origin: '🇪🇨', bio: 'A deeply beloved matriarch with Sicilian lineage through her grandmother. She passed down many Italian traditions.', notes: 'Her grandmother emigrated from Sicily in the early 1900s.', photo: '', generation: 1, parentId: null },
-  { id: 3, name: 'Miguel Pastor', birth: '1958', death: '', birthplace: 'Guayaquil, Ecuador', relationship: 'Son of Carlos & Rosa', origin: '🇪🇨', bio: 'Eldest son of Carlos and Rosa. A respected community leader in Guayaquil.', notes: 'Has 3 children.', photo: '', generation: 2, parentId: 1 },
-  { id: 4, name: 'Elena Pastor', birth: '1962', death: '', birthplace: 'Guayaquil, Ecuador', relationship: 'Daughter of Carlos & Rosa', origin: '🇪🇨', bio: 'Elena moved to Albarracín, Spain after marrying and helped trace the family\'s Spanish ancestry.', notes: 'Discovered the Albarracín connection through genealogical research.', photo: '', generation: 2, parentId: 1 },
-  { id: 5, name: 'Luis Pastor', birth: '1985', death: '', birthplace: 'Guayaquil, Ecuador', relationship: 'Son of Miguel', origin: '🇪🇨', bio: 'Current generation, passionate about the family heritage and the one who started this family tree project.', notes: '', photo: '', generation: 3, parentId: 3 },
-  { id: 6, name: 'Sofia Pastor', birth: '1988', death: '', birthplace: 'Guayaquil, Ecuador', relationship: 'Daughter of Miguel', origin: '🇪🇨', bio: 'Lives in Quito and keeps close ties with family.', notes: '', photo: '', generation: 3, parentId: 3 },
+  { id: 1, name: 'Carlos Pastor', birth: '1930', death: '2005', birthplace: 'Guayaquil, Ecuador', origin: '🇪🇨', bio: 'The family patriarch who built the foundation of the Pastor family in Ecuador. Known for his strength and generosity.', notes: 'Immigrated from the coastal region. Had 4 children.', photo: '', generation: 1, parentId: null },
+  { id: 2, name: 'Rosa Delgado', birth: '1935', death: '2010', birthplace: 'Quito, Ecuador', origin: '🇪🇨', bio: 'A deeply beloved matriarch with Sicilian lineage through her grandmother. She passed down many Italian traditions.', notes: 'Her grandmother emigrated from Sicily in the early 1900s.', photo: '', generation: 1, parentId: null },
+  { id: 3, name: 'Miguel Pastor', birth: '1958', death: '', birthplace: 'Guayaquil, Ecuador', origin: '🇪🇨', bio: 'Eldest son of Carlos and Rosa. A respected community leader in Guayaquil.', notes: 'Has 3 children.', photo: '', generation: 2, parentId: 1 },
+  { id: 4, name: 'Elena Pastor', birth: '1962', death: '', birthplace: 'Guayaquil, Ecuador', origin: '🇪🇨', bio: 'Elena moved to Albarracín, Spain after marrying and helped trace the family\'s Spanish ancestry.', notes: 'Discovered the Albarracín connection through genealogical research.', photo: '', generation: 2, parentId: 1 },
+  { id: 5, name: 'Luis Pastor', birth: '1985', death: '', birthplace: 'Guayaquil, Ecuador', origin: '🇪🇨', bio: 'Current generation, passionate about the family heritage and the one who started this family tree project.', notes: '', photo: '', generation: 3, parentId: 3 },
+  { id: 6, name: 'Sofia Pastor', birth: '1988', death: '', birthplace: 'Guayaquil, Ecuador', origin: '🇪🇨', bio: 'Lives in Quito and keeps close ties with family.', notes: '', photo: '', generation: 3, parentId: 3 },
 ];
 
 let nextId = 7;
@@ -760,8 +760,13 @@ function openProfile(id) {
   document.getElementById('modal-name').textContent = m.name;
   document.getElementById('modal-dates').textContent = dateStr;
   let body = '';
-  if (m.relationship) body += `<div class="modal-field"><label>Relationship</label><p>${m.relationship}</p></div>`;
   if (m.birthplace) body += `<div class="modal-field"><label>Birthplace</label><p>${m.origin || ''} ${m.birthplace}</p></div>`;
+  if (m.settingofbirth) body += `<div class="modal-field"><label>Setting of Birth</label><p>${m.settingofbirth}</p></div>`;
+  if (m.hospitalname) body += `<div class="modal-field"><label>Hospital Name</label><p>${m.hospitalname}</p></div>`;
+  if (m.deathplace) body += `<div class="modal-field"><label>Place of Passing</label><p>${m.deathplace}</p></div>`;
+  if (m.passingcause) body += `<div class="modal-field"><label>Cause of Passing</label><p>${m.passingcause}</p></div>`;
+  if (m.disposition) body += `<div class="modal-field"><label>Final Disposition</label><p>${m.disposition}</p></div>`;
+  if (m.dispositionlocation) body += `<div class="modal-field"><label>Disposition Location</label><p>${m.dispositionlocation}</p></div>`;
   if (m.bio) body += `<div class="modal-field"><label>Biography</label><p>${m.bio}</p></div>`;
   if (m.notes) body += `<div class="modal-field"><label>Notes</label><p>${m.notes}</p></div>`;
   const parent = m.parentId ? members.find(x => x.id === m.parentId) : null;
@@ -837,7 +842,12 @@ function editMember(id) {
         <div class="form-group"><label>Birth Year</label><input id="f-birth" value="${m ? m.birth : ''}"></div>
         <div class="form-group"><label>Death Year (if applicable)</label><input id="f-death" value="${m ? m.death : ''}"></div>
         <div class="form-group form-full"><label>Birthplace</label><input id="f-birthplace" value="${m ? m.birthplace : ''}"></div>
-        <div class="form-group"><label>Relationship / Role</label><input id="f-rel" value="${m ? m.relationship : ''}"></div>
+        <div class="form-group"><label>Setting of Birth</label><input id="f-settingofbirth" value="${m ? m.settingofbirth : ''}"></div>
+        <div class="form-group"><label>Hospital Name (if applicable)</label><input id="f-hospitalname" value="${m ? m.hospitalname : ''}"></div>
+        <div class="form-group form-full"><label>Place of Passing</label><input id="f-deathplace" value="${m ? m.deathplace : ''}"></div>
+        <div class="form-group form-full"><label>Cause of Passing</label><input id="f-passingcause" value="${m ? m.passingcause : ''}"></div>
+        <div class="form-group form-full"><label>Final Disposition</label><input id="f-finaldisposition" value="${m ? m.disposition : ''}"></div>
+        <div class="form-group form-full"><label>Disposition Location</label><input id="f-dispositionlocation" value="${m ? m.dispositionlocation : ''}"></div>
         <div class="form-group"><label>Heritage Flag (emoji)</label><input id="f-origin" value="${m ? m.origin : '🇪🇨'}" placeholder="🇪🇨 or 🇮🇹 or 🇪🇸"></div>
         <div class="form-group"><label>Generation *</label><select id="f-gen">${genOptions}</select></div>
         <div class="form-group"><label>Parent (if applicable)</label><select id="f-parent"><option value="">— None —</option>${parentOptions}</select></div>
@@ -881,7 +891,12 @@ function saveMember() {
     birth: document.getElementById('f-birth').value.trim(),
     death: document.getElementById('f-death').value.trim(),
     birthplace: document.getElementById('f-birthplace').value.trim(),
-    relationship: document.getElementById('f-rel').value.trim(),
+    settingofbirth: document.getElementById('f-settingofbirth').value.trim(),
+    hospitalname: document.getElementById('f-hospitalname').value.trim(),
+    deathplace: document.getElementById('f-deathplace').value.trim(),
+    passingcause: document.getElementById('f-passingcause').value.trim(),
+    disposition: document.getElementById('f-finaldisposition').value.trim(),
+    dispositionlocation: document.getElementById('f-dispositionlocation').value.trim(),
     origin: document.getElementById('f-origin').value.trim(),
     generation: gen,
     parentId: parentVal ? parseInt(parentVal) : null,
