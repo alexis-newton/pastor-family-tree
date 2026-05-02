@@ -564,8 +564,8 @@ function editMember(id){
   const m=id?byId(id):null;
   const v=(k,fb='')=>m?(m[k]!=null?m[k]:fb):fb;
   const pIds=v('parentIds',[]);
-  const popts=members.filter(x=>x.id!==id).map(x=>`<option value="${x.id}" ${pIds.includes(x.id)?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
-  const sopts=members.filter(x=>x.id!==id).map(x=>`<option value="${x.id}" ${v('spouseId')===x.id?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
+  const popts=[...members].filter(x=>x.id!==id).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}" ${pIds.includes(x.id)?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
+  const sopts=[...members].filter(x=>x.id!==id).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}" ${v('spouseId')===x.id?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
   const gopts=[1,2,3,4,5,6].map(g=>`<option value="${g}" ${v('generation',1)===g?'selected':''}>${g}</option>`).join('');
   const stopts=['','Home','Hospital','Clinic','Other'].map(s=>`<option value="${s}" ${v('settingOfBirth')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
   const dopts=['','Burial','Cremation','Entombment','Donation to Science','Other'].map(s=>`<option value="${s}" ${v('finalDisposition')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
