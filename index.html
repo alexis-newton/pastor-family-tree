@@ -379,9 +379,10 @@ function renderClassic(){
   });
 
   const canvasW=viewW;
+  const containerW=Math.max(canvasW, window.innerWidth - 64);
 
-  let html=`<div style="width:100%;overflow:auto;"><div style="min-width:${canvasW}px;display:flex;justify-content:center;padding:.5rem 0;"><div style="position:relative;width:${canvasW}px;height:${maxY}px;">`;
-
+  let html=`<div style="width:100%;overflow:auto;display:flex;justify-content:center;"><div style="position:relative;width:${canvasW}px;height:${maxY}px;margin:0 auto;">`;
+  
   members.forEach(m=>{
     const pos=positions[m.id];
     if(!pos)return;
@@ -420,7 +421,7 @@ function renderClassic(){
     html+=`<line x1="${x1}" y1="${ly}" x2="${x2}" y2="${ly}" stroke="var(--gold)" stroke-width="2"/>`;
     html+=`<text x="${mx}" y="${ly+4}" text-anchor="middle" font-size="10" fill="var(--gold)" font-family="serif">♥</text>`;
   });
-  html+='</svg></div></div></div>';
+  html+='</svg></div></div>';
   c.innerHTML=html;
 }
 
