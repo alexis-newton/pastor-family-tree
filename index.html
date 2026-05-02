@@ -367,22 +367,17 @@ function renderClassic(){
     rx+=rootAllocs[i]+HGAP*2;
   });
 
-  let maxX=PAD, maxY=PAD;
+  let maxY=PAD;
   members.forEach(m=>{
     const pos=positions[m.id];
     if(!pos)return;
-    const sp=m.spouseId?byId(m.spouseId):null;
-    const spPos=sp?positions[sp.id]:null;
-    const rightEdge=spPos?spPos.x+NW+PAD:pos.x+NW+PAD;
-    if(rightEdge>maxX)maxX=rightEdge;
     if(pos.y+NH+PAD>maxY)maxY=pos.y+NH+PAD;
   });
-
-  const canvasW=viewW;
-  const containerW=Math.max(canvasW, window.innerWidth - 64);
-
-  let html=`<div style="width:100%;overflow:auto;display:flex;justify-content:center;"><div style="position:relative;width:${canvasW}px;height:${maxY}px;margin:0 auto;">`;
   
+  const canvasW=Math.max(viewW, startX*2+totalTreeW+PAD);
+  
+  let html=`<div style="width:100%;overflow:auto;"><div style="width:${canvasW}px;height:${maxY}px;position:relative;margin:0 auto;">`;
+    
   members.forEach(m=>{
     const pos=positions[m.id];
     if(!pos)return;
