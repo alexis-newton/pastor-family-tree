@@ -27,11 +27,10 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .nav-admin-btn:hover{background:var(--terracotta);}
 .page{display:none;}.page.active{display:block;}
 
-/* HOME */
 .home-hero{background:linear-gradient(160deg,var(--ink) 0%,var(--ink-light) 100%);padding:5rem 2rem 4rem;text-align:center;position:relative;overflow:hidden;}
 .home-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(184,137,42,.04) 40px,rgba(184,137,42,.04) 80px);}
 .hero-ornament{font-size:2.5rem;margin-bottom:1rem;opacity:.7;}
-.hero-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);color:var(--parchment);font-weight:700;line-height:1.15;position:relative;}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);color:var(--parchment);font-weight:700;line-height:1.15;}
 .hero-title span{color:var(--gold-light);}
 .hero-sub{font-family:'Playfair Display',serif;font-style:italic;color:var(--stone-light);font-size:1.1rem;margin-top:1rem;}
 .hero-divider{width:80px;height:2px;background:var(--gold);margin:1.5rem auto;}
@@ -50,7 +49,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .heritage-card h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--ink);margin-bottom:.25rem;}
 .heritage-card p{font-size:.85rem;color:var(--stone);line-height:1.6;}
 
-/* TREE */
 .tree-header{background:var(--parchment);border-bottom:1px solid var(--parchment-dark);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
 .tree-header h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--ink);}
 .view-toggle{display:flex;border:1px solid var(--parchment-dark);border-radius:6px;overflow:hidden;}
@@ -63,29 +61,75 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .sync-dot.live{background:#5a9e5a;}
 .sync-dot.error{background:var(--terracotta);}
 
-/* ── CLASSIC TREE ── */
-.classic-wrap{display:inline-flex;flex-direction:column;align-items:center;min-width:max-content;padding-bottom:2rem;}
-.gen-block{display:flex;flex-direction:column;align-items:center;width:100%;}
-.gen-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--stone);font-weight:700;text-align:center;width:100%;margin-bottom:8px;margin-top:16px;}
-.gen-units-row{display:flex;justify-content:center;align-items:flex-start;gap:40px;flex-wrap:nowrap;}
+/* ── CLASSIC TREE ──
+  Key layout structure:
 
-/* Each family unit */
-.family-unit{display:flex;flex-direction:column;align-items:center;}
+  .tree-root
+    .family-block                    ← one person's subtree
+      .top-row                       ← blood-child node + optional spouse to the right
+        .blood-node-wrap             ← centers the blood child + its subtree
+          .couple-and-children       ← vertical stack: couple row, then children
+            .couple-row              ← [blood-node] [marriage-line] [spouse-node]
+            (children section)
+        (spouse is INSIDE .couple-row, to the RIGHT of the blood node)
 
-/* Couple: person + heart-line + spouse */
+  The horizontal bar connecting siblings spans only the .blood-node-wrap elements,
+  NOT the spouse. This ensures the line clearly connects only to the blood child.
+*/
+
+.tree-root{display:flex;justify-content:center;padding:1.5rem 1rem 2rem;}
+
+/* A family-block is the full subtree for one blood person */
+.family-block{display:flex;flex-direction:column;align-items:center;}
+
+/*
+  The couple-and-children stacks:
+    1. couple-row (blood node + marriage line + spouse)
+    2. children connector + children row (only if children exist)
+  align-items:flex-start so the vertical drop hangs from the blood node's center,
+  not the couple's center (which would shift right when a spouse is present).
+  We handle centering of the drop line manually via the blood-anchor.
+*/
+.couple-and-children{display:flex;flex-direction:column;align-items:center;}
+
+/* couple-row: blood node first, then marriage line + spouse to the right */
 .couple-row{display:flex;align-items:center;}
+
 .marriage-line{width:22px;height:2px;background:var(--gold);position:relative;flex-shrink:0;}
 .marriage-line::after{content:'♥';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.5rem;color:var(--gold);background:var(--cream);padding:0 2px;line-height:1;}
 
-/* Drop + children */
-.v-drop{width:2px;height:22px;background:var(--parchment-dark);}
-.h-bar-wrap{display:flex;flex-direction:column;align-items:center;width:100%;}
-.h-bar{height:2px;background:var(--parchment-dark);width:100%;}
-.children-row{display:flex;align-items:flex-start;justify-content:center;gap:20px;}
-.child-wrap{display:flex;flex-direction:column;align-items:center;}
-.child-tick{width:2px;height:18px;background:var(--parchment-dark);}
+/*
+  Children section:
+  .v-drop  → vertical line drops from blood node center down
+  .h-bar-wrap → holds the horizontal bar that spans exactly the blood-node centers
+  .children-row → the child family-blocks side by side
 
-/* Node card */
+  The trick: we use a .child-connector wrapper that is ONLY as wide as the blood node (120px).
+  The horizontal bar and tick line align to that center, not the couple pair center.
+*/
+.v-drop{width:2px;height:24px;background:var(--parchment-dark);align-self:center;}
+.children-row{display:flex;align-items:flex-start;justify-content:center;gap:28px;}
+
+/* Each child-col: tick down then the child's family-block */
+.child-col{display:flex;flex-direction:column;align-items:center;}
+.child-tick{width:2px;height:20px;background:var(--parchment-dark);}
+
+/* The h-bar only spans between the BLOOD NODE centers of the siblings.
+   We achieve this by measuring in JS post-render, OR by using a simpler
+   CSS approach: the h-bar is inside .children-section which is aligned
+   to the children-row, and we use ::before on children-row to draw the bar
+   between first and last child-col centers. */
+.children-section{display:flex;flex-direction:column;align-items:center;width:100%;}
+
+/* Draw horizontal connector bar spanning blood-node centers using position:relative trick */
+.children-row-wrap{position:relative;display:flex;flex-direction:column;align-items:center;width:100%;}
+.h-bar{
+  height:2px;background:var(--parchment-dark);
+  /* width is set inline via JS to span exactly between first and last child blood-node centers */
+  align-self:center;
+}
+
+/* NODE */
 .pnode{background:var(--parchment);border:1.5px solid var(--parchment-dark);border-radius:8px;padding:10px 10px 8px;width:120px;text-align:center;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0;}
 .pnode:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 4px 14px rgba(42,31,14,.13);}
 .pnode-av{width:42px;height:42px;border-radius:50%;margin:0 auto 5px;background:var(--olive);display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--cream);font-weight:700;overflow:hidden;border:2px solid var(--gold);}
@@ -94,8 +138,8 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .pnode-dates{font-size:.65rem;color:var(--stone);margin-top:2px;}
 .pnode-flag{position:absolute;top:4px;right:5px;font-size:.6rem;}
 
-/* EXPANDABLE */
-.expand-tree{max-width:900px;margin:0 auto;}
+/* EXPAND */
+.expand-wrap{max-width:900px;margin:0 auto;}
 .expand-node{margin-bottom:4px;}
 .expand-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--parchment);border:1px solid var(--parchment-dark);border-radius:6px;cursor:pointer;transition:all .15s;}
 .expand-row:hover{border-color:var(--gold);background:#FBF5E6;}
@@ -109,7 +153,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .expand-view-btn:hover{background:var(--terracotta);color:var(--cream);border-color:var(--terracotta);}
 .expand-children{margin-left:28px;margin-top:4px;border-left:2px solid var(--parchment-dark);padding-left:12px;}
 
-/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(42,31,14,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;}
 .modal{background:var(--cream);border-radius:10px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--parchment-dark);}
 .modal-header{background:var(--ink);padding:1.5rem;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:1rem;}
@@ -124,14 +167,12 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .modal-field p{color:var(--ink-light);font-size:.95rem;line-height:1.6;}
 .modal-close{background:none;border:1px solid rgba(255,255,255,.2);color:var(--parchment);padding:6px 14px;border-radius:4px;cursor:pointer;font-size:.8rem;margin-left:auto;font-family:'Lato',sans-serif;}
 
-/* ADMIN */
 .admin-overlay{position:fixed;inset:0;background:rgba(42,31,14,.6);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem;}
 .admin-panel{background:var(--cream);border-radius:10px;width:100%;max-width:660px;max-height:92vh;overflow-y:auto;border:2px solid var(--terracotta);}
 .admin-header{background:var(--ink);padding:1rem 1.5rem;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;}
 .admin-header h3{font-family:'Playfair Display',serif;color:var(--parchment);font-size:1.15rem;}
 .admin-body{padding:1.5rem;}
 .admin-member-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--parchment);border:1px solid var(--parchment-dark);border-radius:6px;margin-bottom:6px;}
-.admin-member-name{flex:1;font-size:.9rem;color:var(--ink);font-family:'Playfair Display',serif;}
 .admin-edit-btn{background:none;border:1px solid var(--olive);color:var(--olive);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.75rem;font-family:'Lato',sans-serif;}
 .admin-delete-btn{background:none;border:1px solid var(--terracotta);color:var(--terracotta);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.75rem;font-family:'Lato',sans-serif;}
 .admin-add-btn{background:var(--olive);color:var(--cream);border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-family:'Lato',sans-serif;font-size:.875rem;font-weight:700;width:100%;margin-bottom:1rem;}
@@ -241,8 +282,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
-const firebaseConfig={
-  apiKey: "AIzaSyB2daCRTzZbYZVC-CYgQpB8n6__1EEc-Bg",
+const firebaseConfig={apiKey: "AIzaSyB2daCRTzZbYZVC-CYgQpB8n6__1EEc-Bg",
   authDomain: "pastor-family-tree.firebaseapp.com",
   projectId: "pastor-family-tree",
   storageBucket: "pastor-family-tree.firebasestorage.app",
@@ -289,10 +329,9 @@ function loadDemo(){
   renderTree();
 }
 
-// ── HELPERS ──────────────────────────────────────────────────
-function byId(id){return members.find(m=>m.id===id);}
+function byId(id){return id?members.find(m=>m.id===id):null;}
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
-function isBloodMember(m){return (m.parentIds||[]).some(pid=>byId(pid));}
+function hasBloodParent(m){return (m.parentIds||[]).some(pid=>byId(pid));}
 
 function avHTML(m,size=42){
   const colors=['var(--olive)','var(--terracotta-dark)','var(--ink-light)','#5A6B8A','#7A5A3A'];
@@ -314,7 +353,6 @@ function nodeHTML(m){
   </div>`;
 }
 
-// ── NAVIGATION ────────────────────────────────────────────────
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
@@ -331,130 +369,133 @@ function setView(v){
 }
 function renderTree(){renderClassic();renderExpand();}
 
-// ── CLASSIC VIEW ─────────────────────────────────────────────
+// ── CLASSIC VIEW ──────────────────────────────────────────────
 //
-// ALGORITHM (no duplicates, correct structure):
+// THE FIX: The parent-to-child connector line must land on the BLOOD CHILD only,
+// not on the married-in spouse beside them.
 //
-// 1. Build "family units" — each unit is ONE anchor person + optional spouse.
-//    The ANCHOR is always a blood member (has parentIds in the tree), OR a
-//    root person (no parents at all, treated as generation founder).
-//    Married-in spouses (no parentIds) are NEVER anchors — they attach to
-//    their blood-member partner's unit.
+// Solution: Each child-col contains only the blood child's node at the top tick point.
+// The spouse is rendered BESIDE the blood node inside that child's own family-block,
+// but the tick line and h-bar connect only to the blood node's center (120px wide node).
 //
-// 2. Walk generation by generation. For each generation, find all people who
-//    should appear. Track every person in a global `placed` Set so nobody
-//    ever appears twice.
+// Structure per child-col:
+//   .child-col
+//     .child-tick          ← 2px line down to blood node
+//     .family-block        ← blood node + spouse to the right + their children below
+//       .couple-row
+//         [blood-node]  [marriage-line]  [spouse-node]   ← spouse is to the RIGHT
+//       (children section if any)
 //
-// 3. Children of a unit = members whose parentIds overlap with the unit's IDs.
-//    They are rendered INSIDE the unit, not as separate top-level entries.
-//
+// The h-bar width is set to span from the CENTER of the first child's blood node
+// to the CENTER of the last child's blood node. Since each blood node is 120px wide
+// and child-cols are centered on that node, the h-bar = gap*(n-1) + 120*(n-1)... 
+// Actually we just use: total children row width - one node width, centering on nodes.
+// Simplest correct approach: h-bar is positioned relative to children-row using
+// left/right offsets of nodeWidth/2 from edges.
+
+const NODE_W = 120; // must match .pnode width in CSS
+
+function isMarriedIn(m){
+  if(hasBloodParent(m)) return false;
+  if(!m.spouseId) return false;
+  const sp=byId(m.spouseId);
+  if(!sp) return false;
+  if(hasBloodParent(sp)) return true;
+  return members.indexOf(m)>members.indexOf(sp);
+}
+
 function renderClassic(){
   const c=document.getElementById('classic-view');
-  if(!members.length){c.innerHTML='<div class="empty-state"><div style="font-size:3rem;opacity:.4;">&#127807;</div><p>No family members yet.</p></div>';return;}
-
-  // placed = everyone who has been assigned to a unit (won't appear again)
+  if(!members.length){
+    c.innerHTML='<div class="empty-state"><div style="font-size:3rem;opacity:.4;margin-bottom:.5rem;">&#127807;</div><p>No family members yet.</p></div>';
+    return;
+  }
   const placed=new Set();
+  const roots=members.filter(m=>!hasBloodParent(m)&&!isMarriedIn(m));
 
-  // Build units for a given generation
-  // An "anchor" = blood member OR root (no parentIds at all matching anyone)
-  // Their married-in spouse attaches to them
-  function buildUnits(gen){
-    const genPeople=members.filter(m=>m.generation===gen);
-    const units=[];
-    genPeople.forEach(m=>{
-      if(placed.has(m.id))return; // already placed as a spouse or child elsewhere
+  // familyBlock renders the blood person + their spouse to the right + children below.
+  // The TOP of the block is the blood node (for connector alignment).
+  function familyBlock(m){
+    if(placed.has(m.id)) return '';
+    placed.add(m.id);
 
-      // Is this person a married-in spouse? (no blood parents in tree, has a spouse who IS blood or root)
-      const mBlood=isBloodMember(m);
-      const mRoot=!mBlood&&!(m.parentIds||[]).length;
-      const spouse=m.spouseId?byId(m.spouseId):null;
-      const spouseInGen=spouse&&spouse.generation===gen;
+    const spouse=m.spouseId?byId(m.spouseId):null;
+    const showSpouse=spouse&&!placed.has(spouse.id);
+    if(showSpouse) placed.add(spouse.id);
 
-      // If this person has no blood parents AND has a spouse who does (or is already placed)
-      // → they are a married-in spouse, skip — they'll attach to their spouse's unit
-      if(!mBlood&&!mRoot&&spouseInGen){
-        // already handled or will be by spouse's iteration — skip
-        return;
-      }
+    const pool=[m.id,...(showSpouse?[spouse.id]:[])];
+    const kids=members.filter(ch=>
+      !placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid))
+    );
 
-      // Special married-in case: no parentIds at all, spouse exists in same gen and IS blood
-      if(mRoot&&spouseInGen&&isBloodMember(spouse)){
-        // this is the married-in person, spouse is the anchor → skip, spouse will pick them up
-        return;
-      }
+    let html='<div class="family-block"><div class="couple-and-children">';
 
-      // This person is an anchor — build their unit
-      placed.add(m.id);
-      let spouseNode=null;
-      if(spouse&&spouseInGen&&!placed.has(spouse.id)){
-        placed.add(spouse.id);
-        spouseNode=spouse;
-      }
-      units.push({anchor:m,spouse:spouseNode});
-    });
-    return units;
-  }
+    // Couple row: blood node first, then marriage line + spouse
+    html+='<div class="couple-row">';
+    html+=nodeHTML(m);
+    if(showSpouse){
+      html+='<div class="marriage-line"></div>';
+      html+=nodeHTML(spouse);
+    }
+    html+='</div>'; // couple-row
 
-  // Get children of a unit
-  function childrenOf(unit){
-    const ids=[unit.anchor.id,...(unit.spouse?[unit.spouse.id]:[])];
-    return members.filter(ch=>(ch.parentIds||[]).some(pid=>ids.includes(pid)));
-  }
+    // Children section — connector goes from blood node center only
+    if(kids.length){
+      // v-drop hangs from blood node center
+      // We align it to the LEFT of couple-and-children (which starts at blood node left)
+      // couple-and-children has align-items:center but the blood node is always first
+      // so we use a wrapper to force the v-drop to align under the blood node center
+      html+='<div style="display:flex;flex-direction:column;align-items:center;width:'+NODE_W+'px;">';
+      html+='<div class="v-drop"></div>';
 
-  const genLabels={1:'Grandparents / Founders',2:'Parents',3:'Current Generation',4:'Children',5:'Grandchildren',6:'Great-Grandchildren'};
-  const maxGen=Math.max(...members.map(m=>m.generation||1));
-
-  let html='<div class="classic-wrap">';
-
-  for(let g=1;g<=maxGen;g++){
-    const units=buildUnits(g);
-    if(!units.length)continue;
-
-    html+=`<div class="gen-label">${genLabels[g]||'Generation '+g}</div>`;
-    html+='<div class="gen-units-row">';
-
-    units.forEach(unit=>{
-      const kids=childrenOf(unit);
-      html+='<div class="family-unit">';
-
-      // Couple row
-      html+='<div class="couple-row">';
-      html+=nodeHTML(unit.anchor);
-      if(unit.spouse){
-        html+='<div class="marriage-line"></div>';
-        html+=nodeHTML(unit.spouse);
-      }
-      html+='</div>';
-
-      // Children branch
-      if(kids.length){
-        html+='<div class="v-drop"></div>';
-        if(kids.length===1){
-          // Single child: just a tick and node, no h-bar
-          html+='<div class="child-wrap"><div class="child-tick"></div>';
-          html+=nodeHTML(kids[0]);
-          placed.add(kids[0].id);
+      if(kids.length===1){
+        // Single child: just tick + child block, no h-bar needed
+        html+='<div class="child-col">';
+        html+='<div class="child-tick"></div>';
+        html+=familyBlock(kids[0]);
+        html+='</div>';
+      } else {
+        // Multiple children: h-bar spans blood-node centers only
+        // Each child-col is centered on its blood node (NODE_W wide)
+        // gap between child-cols = 28px
+        // h-bar width = (NODE_W + 28) * (n-1) but we just use position relative trick:
+        // Wrap in position:relative div, h-bar absolutely positioned
+        const gap=28;
+        const totalW = NODE_W*kids.length + gap*(kids.length-1);
+        const barW = totalW - NODE_W; // from center of first to center of last
+        html+=`<div style="position:relative;width:${totalW}px;">`;
+        // h-bar centered: left = NODE_W/2, width = barW
+        html+=`<div style="position:absolute;top:0;left:${NODE_W/2}px;width:${barW}px;height:2px;background:var(--parchment-dark);"></div>`;
+        html+='</div>';
+        // children row
+        html+='<div class="children-row">';
+        kids.forEach(ch=>{
+          html+='<div class="child-col">';
+          html+='<div class="child-tick"></div>';
+          html+=familyBlock(ch);
           html+='</div>';
-        } else {
-          // Multiple children: horizontal bar spanning them
-          html+='<div class="h-bar-wrap"><div class="h-bar"></div></div>';
-          html+='<div class="children-row">';
-          kids.forEach(ch=>{
-            placed.add(ch.id);
-            html+='<div class="child-wrap"><div class="child-tick"></div>';
-            html+=nodeHTML(ch);
-            html+='</div>';
-          });
-          html+='</div>';
-        }
+        });
+        html+='</div>'; // children-row
       }
 
-      html+='</div>'; // family-unit
-    });
+      html+='</div>'; // blood-node-width wrapper
+    }
 
-    html+='</div>'; // gen-units-row
+    html+='</div>'; // couple-and-children
+    html+='</div>'; // family-block
+    return html;
   }
 
+  let html='<div class="tree-root">';
+  if(roots.length>1){
+    html+='<div style="display:flex;gap:60px;align-items:flex-start;">';
+    roots.forEach(r=>{html+=familyBlock(r);});
+    html+='</div>';
+  }else if(roots.length===1){
+    html+=familyBlock(roots[0]);
+  }else{
+    html+='<p style="color:var(--stone);text-align:center;">Could not determine tree roots. Check parent/spouse assignments.</p>';
+  }
   html+='</div>';
   c.innerHTML=html;
 }
@@ -463,57 +504,40 @@ function renderClassic(){
 function renderExpand(){
   const c=document.getElementById('expand-view');
   if(!members.length){c.innerHTML='<div class="empty-state"><div style="font-size:3rem;opacity:.4;">&#127807;</div><p>No family members yet.</p></div>';return;}
-  // Roots = no blood parents in the tree
-  const roots=members.filter(m=>!isBloodMember(m)&&!m.spouseId);
-  const rootsWithSpouse=members.filter(m=>!isBloodMember(m)&&m.spouseId&&!byId(m.spouseId)?.parentIds?.some(pid=>byId(pid)));
-  const allRoots=[...roots,...rootsWithSpouse.filter(m=>!roots.find(r=>r.id===m.id))];
-  // Actually: just find members with no blood parents, deduplicate couples
-  const seen=new Set();
-  const trueRoots=members.filter(m=>!isBloodMember(m));
-  const dedupedRoots=[];
-  trueRoots.forEach(m=>{
-    if(seen.has(m.id))return;
-    seen.add(m.id);
-    const sp=m.spouseId?byId(m.spouseId):null;
-    if(sp)seen.add(sp.id);
-    dedupedRoots.push(m);
-  });
-
-  const seen2=new Set();
-  let html='<div class="expand-tree">';
-  dedupedRoots.forEach(m=>{if(!seen2.has(m.id))html+=expandNode(m,seen2);});
+  const placed=new Set();
+  const roots=members.filter(m=>!hasBloodParent(m)&&!isMarriedIn(m));
+  function expandNode(m){
+    if(placed.has(m.id))return'';
+    placed.add(m.id);
+    const spouse=m.spouseId?byId(m.spouseId):null;
+    const showSpouse=spouse&&!placed.has(spouse.id);
+    if(showSpouse)placed.add(spouse.id);
+    const pool=[m.id,...(showSpouse?[spouse.id]:[])];
+    const kids=members.filter(ch=>!placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
+    const hasKids=kids.length>0,isOpen=openNodes.has(m.id);
+    const d=m.birth?(m.death?`${m.birth}–${m.death}`:`b. ${m.birth}`):'';
+    let html=`<div class="expand-node"><div class="expand-row" onclick="toggleExpand('${m.id}')">
+      <div class="expand-toggle ${!hasKids?'leaf':isOpen?'open':''}">${hasKids?'&#9658;':'&#9670;'}</div>
+      ${avHTML(m,34)}
+      <div class="expand-info">
+        <div class="expand-name">${m.origin||''} ${m.name}${showSpouse?` <span style="color:var(--gold);font-size:.8rem;">♥ ${spouse.name}</span>`:''}</div>
+        <div class="expand-meta">${[d,m.birthplace].filter(Boolean).join(' · ')}</div>
+      </div>
+      <button class="expand-view-btn" onclick="event.stopPropagation();openProfile('${m.id}')">Profile</button>
+    </div>`;
+    if(hasKids&&isOpen){
+      html+='<div class="expand-children">';
+      kids.forEach(ch=>{html+=expandNode(ch);});
+      html+='</div>';
+    }
+    html+='</div>';
+    return html;
+  }
+  let html='<div class="expand-wrap">';
+  roots.forEach(r=>{html+=expandNode(r);});
   html+='</div>';
   c.innerHTML=html;
 }
-
-function expandNode(m,seen){
-  if(seen.has(m.id))return'';
-  seen.add(m.id);
-  const spouse=m.spouseId?byId(m.spouseId):null;
-  if(spouse)seen.add(spouse.id);
-  const myIds=[m.id,...(spouse?[spouse.id]:[])];
-  const kids=members.filter(ch=>(ch.parentIds||[]).some(pid=>myIds.includes(pid)));
-  const hasKids=kids.length>0,isOpen=openNodes.has(m.id);
-  const d=m.birth?(m.death?`${m.birth}–${m.death}`:`b. ${m.birth}`):'';
-
-  let html=`<div class="expand-node"><div class="expand-row" onclick="toggleExpand('${m.id}')">
-    <div class="expand-toggle ${!hasKids?'leaf':isOpen?'open':''}">${hasKids?'&#9658;':'&#9670;'}</div>
-    ${avHTML(m,34)}
-    <div class="expand-info">
-      <div class="expand-name">${m.origin||''} ${m.name}${spouse?` <span style="color:var(--gold);font-size:.8rem;">♥ ${spouse.name}</span>`:''}</div>
-      <div class="expand-meta">${[d,m.birthplace].filter(Boolean).join(' · ')}</div>
-    </div>
-    <button class="expand-view-btn" onclick="event.stopPropagation();openProfile('${m.id}')">Profile</button>
-  </div>`;
-  if(hasKids&&isOpen){
-    html+='<div class="expand-children">';
-    kids.forEach(ch=>{html+=expandNode(ch,seen);});
-    html+='</div>';
-  }
-  html+='</div>';
-  return html;
-}
-
 function toggleExpand(id){openNodes.has(id)?openNodes.delete(id):openNodes.add(id);renderExpand();}
 
 // ── PROFILE MODAL ─────────────────────────────────────────────
@@ -547,7 +571,6 @@ function closeModal(e){if(e.target.id==='profile-modal')document.getElementById(
 // ── ADMIN ─────────────────────────────────────────────────────
 function openAdmin(){document.getElementById('admin-overlay').style.display='flex';adminLoggedIn?renderAdminPanel():renderLogin();}
 function closeAdminPanel(){document.getElementById('admin-overlay').style.display='none';editingId=null;pendingPhoto=null;}
-
 function renderLogin(){
   document.getElementById('admin-content').innerHTML=`<div class="login-form">
     <h4>Admin Login</h4>
@@ -563,12 +586,12 @@ function doLogin(){if(document.getElementById('admin-pw').value===ADMIN_PASSWORD
 function renderAdminPanel(){
   const list=members.map(m=>{
     const sp=m.spouseId?byId(m.spouseId):null;
-    const blood=isBloodMember(m);
+    const blood=hasBloodParent(m);
     return `<div class="admin-member-row">
       ${avHTML(m,30)}
       <div style="flex:1;">
-        <div class="admin-member-name">${m.name}</div>
-        ${sp?`<span style="font-size:.7rem;color:var(--gold);">♥ ${sp.name}</span>`:''}
+        <div style="font-family:'Playfair Display',serif;font-size:.9rem;color:var(--ink);">${m.name}</div>
+        ${sp?`<div style="font-size:.7rem;color:var(--gold);">♥ ${sp.name}</div>`:''}
       </div>
       <span style="font-size:.7rem;color:${blood?'var(--olive)':'var(--stone)'};margin-right:4px;">${blood?'blood':'married-in'}</span>
       <span style="font-size:.72rem;color:var(--stone);margin-right:6px;">Gen ${m.generation}</span>
@@ -594,46 +617,34 @@ function editMember(id){
   const gopts=[1,2,3,4,5,6].map(g=>`<option value="${g}" ${v('generation',1)===g?'selected':''}>${g}</option>`).join('');
   const stopts=['','Home','Hospital','Clinic','Other'].map(s=>`<option value="${s}" ${v('settingOfBirth')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
   const dopts=['','Burial','Cremation','Entombment','Donation to Science','Other'].map(s=>`<option value="${s}" ${v('finalDisposition')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
-
   document.getElementById('admin-content').innerHTML=`<div class="admin-body">
     <h4 style="font-family:'Playfair Display',serif;color:var(--ink);margin-bottom:.5rem;">${id?'Edit':'Add'} Family Member</h4>
-    <div class="tip">
-      <strong>Blood relative</strong> (child of someone in the tree) → select their parents below.<br>
-      <strong>Married-in spouse</strong> (joined the family by marriage) → leave parents empty, just set their spouse.
-    </div>
+    <div class="tip"><strong>Blood relative</strong> → select their parents below.<br><strong>Married-in spouse</strong> → leave parents empty, set spouse field only.</div>
     <div class="form-grid">
       <div class="form-sec">General</div>
       <div class="form-group form-full"><label>Full Name *</label><input id="f-name" value="${v('name')}"></div>
       <div class="form-group"><label>Heritage Flag</label><input id="f-origin" value="${v('origin','🇪🇨')}" placeholder="🇪🇨 🇮🇹 🇪🇸"></div>
       <div class="form-group"><label>Generation *</label><select id="f-gen">${gopts}</select></div>
-
       <div class="form-sec">Family Relationships</div>
       <div class="form-group form-full">
         <label>Blood Parents (Ctrl/Cmd + click to select 2)</label>
         <select id="f-parents" multiple size="5"><option value="">— None —</option>${popts}</select>
       </div>
-      <div class="form-group form-full">
-        <label>Spouse / Partner</label>
-        <select id="f-spouse"><option value="">— None —</option>${sopts}</select>
-      </div>
-
+      <div class="form-group form-full"><label>Spouse / Partner</label><select id="f-spouse"><option value="">— None —</option>${sopts}</select></div>
       <div class="form-sec">Birth</div>
       <div class="form-group"><label>Birth Year</label><input id="f-birth" value="${v('birth')}"></div>
       <div class="form-group"><label>Birthplace</label><input id="f-birthplace" value="${v('birthplace')}"></div>
       <div class="form-group"><label>Setting of Birth</label><select id="f-sob">${stopts}</select></div>
       <div class="form-group"><label>Hospital Name</label><input id="f-hosp" value="${v('hospitalName')}"></div>
-
       <div class="form-sec">Death & Disposition</div>
       <div class="form-group"><label>Death Year</label><input id="f-death" value="${v('death')}"></div>
       <div class="form-group"><label>Place of Death</label><input id="f-dp" value="${v('deathPlace')}"></div>
       <div class="form-group"><label>Cause of Death</label><input id="f-cod" value="${v('causeOfDeath')}"></div>
       <div class="form-group"><label>Final Disposition</label><select id="f-fd">${dopts}</select></div>
       <div class="form-group form-full"><label>Disposition Location</label><input id="f-dl" value="${v('dispositionLocation')}"></div>
-
       <div class="form-sec">Biography & Notes</div>
       <div class="form-group form-full"><label>Biography</label><textarea id="f-bio">${v('bio')}</textarea></div>
       <div class="form-group form-full"><label>Notes</label><textarea id="f-notes">${v('notes')}</textarea></div>
-
       <div class="form-sec">Profile Photo</div>
       <div class="form-group form-full"><label>Upload Photo</label><input type="file" id="f-photo" accept="image/*" onchange="previewPhoto(this)"></div>
       <div id="photo-preview" class="form-full"></div>
