@@ -58,24 +58,13 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--stone-light);}
 .sync-dot.live{background:#5a9e5a;}
 .sync-dot.error{background:var(--terracotta);}
-
-/* ── TREE SVG CANVAS APPROACH ──
-   We render nodes as absolutely positioned divs inside a relative container.
-   SVG overlay draws all connector lines on top.
-   This guarantees lines land exactly on node centers regardless of spouse width. */
-#tree-canvas{position:relative;display:inline-block;min-width:100%;}
-#tree-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;}
-
-/* Node card */
-.pnode{background:var(--parchment);border:1.5px solid var(--parchment-dark);border-radius:8px;padding:10px 10px 8px;width:120px;text-align:center;cursor:pointer;transition:all .2s;position:absolute;}
+.pnode{background:var(--parchment);border:1.5px solid var(--parchment-dark);border-radius:8px;padding:10px 10px 8px;width:120px;text-align:center;cursor:pointer;transition:border-color .2s,box-shadow .2s;position:absolute;}
 .pnode:hover{border-color:var(--gold);box-shadow:0 4px 14px rgba(42,31,14,.13);}
 .pnode-av{width:42px;height:42px;border-radius:50%;margin:0 auto 5px;background:var(--olive);display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--cream);font-weight:700;overflow:hidden;border:2px solid var(--gold);}
 .pnode-av img{width:100%;height:100%;object-fit:cover;}
 .pnode-name{font-family:'Playfair Display',serif;font-size:.77rem;color:var(--ink);font-weight:600;line-height:1.3;}
 .pnode-dates{font-size:.65rem;color:var(--stone);margin-top:2px;}
 .pnode-flag{position:absolute;top:4px;right:5px;font-size:.6rem;}
-
-/* EXPAND */
 .expand-wrap{max-width:900px;margin:0 auto;}
 .expand-node{margin-bottom:4px;}
 .expand-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--parchment);border:1px solid var(--parchment-dark);border-radius:6px;cursor:pointer;transition:all .15s;}
@@ -89,7 +78,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .expand-view-btn{background:none;border:1px solid var(--parchment-dark);border-radius:4px;padding:4px 10px;font-size:.75rem;color:var(--terracotta);cursor:pointer;font-family:'Lato',sans-serif;transition:all .15s;}
 .expand-view-btn:hover{background:var(--terracotta);color:var(--cream);border-color:var(--terracotta);}
 .expand-children{margin-left:28px;margin-top:4px;border-left:2px solid var(--parchment-dark);padding-left:12px;}
-
 .modal-overlay{position:fixed;inset:0;background:rgba(42,31,14,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;}
 .modal{background:var(--cream);border-radius:10px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--parchment-dark);}
 .modal-header{background:var(--ink);padding:1.5rem;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:1rem;}
@@ -146,7 +134,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
     <button class="nav-admin-btn" onclick="openAdmin()">Admin</button>
   </div>
 </nav>
-
 <div id="page-home" class="page active">
   <div class="home-hero">
     <div class="hero-ornament">&#9775;</div>
@@ -166,7 +153,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   <div class="home-about">
     <h2 class="section-title">Our Heritage</h2>
     <div class="section-rule"></div>
-    <p>The Pastor family story spans three continents and centuries of history — from the ancient hilltop city of Albarracín in Spain, through the sun-drenched landscapes of Sicily, to the vibrant culture of Ecuador.</p>
+    <p>The Pastor family story spans three continents — from Albarracín in Spain, through Sicily, to the vibrant culture of Ecuador.</p>
   </div>
   <div class="heritage-grid">
     <div class="heritage-card"><div class="flag">🇪🇨</div><h3>Ecuador</h3><p>Heart of the modern Pastor family.</p></div>
@@ -174,7 +161,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
     <div class="heritage-card"><div class="flag">🇪🇸</div><h3>Albarracín, Spain</h3><p>The family's Iberian roots.</p></div>
   </div>
 </div>
-
 <div id="page-tree" class="page">
   <div class="tree-header">
     <div>
@@ -191,7 +177,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
     <div id="expand-view" style="display:none;"></div>
   </div>
 </div>
-
 <div id="profile-modal" class="modal-overlay" style="display:none;" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-header">
@@ -202,7 +187,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
     <div class="modal-body" id="modal-body"></div>
   </div>
 </div>
-
 <div id="admin-overlay" class="admin-overlay" style="display:none;">
   <div class="admin-panel">
     <div class="admin-header">
@@ -273,6 +257,12 @@ function isMarriedIn(m){
   if(hasBloodParent(sp))return true;
   return members.indexOf(m)>members.indexOf(sp);
 }
+function getSpouse(m,placed){
+  if(!m.spouseId)return null;
+  const sp=byId(m.spouseId);
+  if(!sp||placed.has(sp.id))return null;
+  return sp;
+}
 
 function avHTML(m,size=42){
   const colors=['var(--olive)','var(--terracotta-dark)','var(--ink-light)','#5A6B8A','#7A5A3A'];
@@ -300,21 +290,67 @@ function setView(v){
 function renderTree(){renderClassic();renderExpand();}
 
 // ══════════════════════════════════════════════════════════════
-// CLASSIC VIEW — SVG overlay for pixel-perfect lines
-//
-// LAYOUT ENGINE:
-//   1. Build a tree data structure with x/y positions
-//   2. Render nodes as absolute-positioned divs
-//   3. Draw all lines as SVG paths on an overlay
-//
-// NODE layout constants
-const NW=120, NH=100, HGAP=32, VGAP=80, SPOUSE_GAP=20, MLINE=22;
-// NW=node width, NH=node approx height, HGAP=horizontal gap between siblings
-// VGAP=vertical gap between generations, SPOUSE_GAP=gap before marriage line+spouse
+// LAYOUT CONSTANTS
+const NW=124;   // node width
+const NH=104;   // node height (approximate, for vertical spacing)
+const MLINE=24; // marriage line width
+const HGAP=40;  // horizontal gap between sibling subtrees
+const VGAP=90;  // vertical gap between generations
+const PAD=30;   // canvas padding
 
-// Each positioned node: {id, x, y, width (NW), height (NH)}
-// x,y = top-left corner of the blood node
+// ══════════════════════════════════════════════════════════════
+// SUBTREE WIDTH
+// The total horizontal footprint of a person's entire subtree.
+// This must include:
+//   - The blood node (NW)
+//   - The spouse node if present (MLINE + NW)
+//   - OR the children's combined widths — whichever is wider
+//
+// The blood node is always the leftmost element; the connector
+// line drops from its center. The spouse extends to the right.
+// Children are centered under the blood node center.
+//
+// So: footprint = max(coupleWidth, childrenWidth)
+// where coupleWidth = NW + (hasSpouse ? MLINE + NW : 0)
+// and childrenWidth = sum of kids' subtreeWidths + gaps
+//
+// But we also need the children to fit WITHOUT overlapping the spouse.
+// We handle this by making each subtree "left-anchored at the blood node."
+// The total allocated width for a subtree is:
+//   max(coupleWidth, childrenTotalWidth)
+// centered such that the blood node center = allocation center - (but actually
+// the blood node is at the LEFT of the allocation since spouse extends right).
+//
+// Simpler model that avoids overlaps:
+//   allocation = max(coupleFootprint, childrenFootprint)
+//   blood node is placed at allocation's left edge
+//   children centered under blood node center = allocation_left + NW/2
+//
+function subtreeAlloc(m, placedSet){
+  // Couple footprint
+  const sp = m.spouseId ? byId(m.spouseId) : null;
+  const hasSpouse = sp && !placedSet.has(sp.id);
+  const coupleW = NW + (hasSpouse ? MLINE + NW : 0);
 
+  // Children
+  const pool = [m.id, ...(hasSpouse ? [sp.id] : [])];
+  const kids = members.filter(ch =>
+    !placedSet.has(ch.id) &&
+    (ch.parentIds||[]).some(pid => pool.includes(pid))
+  );
+
+  if(!kids.length) return coupleW;
+
+  // Temporarily mark to avoid counting same person twice in recursive calls
+  const tempPlaced = new Set([...placedSet, m.id, ...(hasSpouse?[sp.id]:[])]);
+  const kidsW = kids.reduce((sum, ch, i) =>
+    sum + subtreeAlloc(ch, tempPlaced) + (i>0 ? HGAP : 0), 0);
+
+  return Math.max(coupleW, kidsW);
+}
+
+// ══════════════════════════════════════════════════════════════
+// LAYOUT ENGINE
 function renderClassic(){
   const c=document.getElementById('classic-view');
   if(!members.length){
@@ -322,177 +358,155 @@ function renderClassic(){
     return;
   }
 
-  const placed=new Set();
-  const roots=members.filter(m=>!hasBloodParent(m)&&!isMarriedIn(m));
+  const placed = new Set();
+  const roots = members.filter(m => !hasBloodParent(m) && !isMarriedIn(m));
+  const positions = {}; // id -> {x, y}
+  const lines = [];     // SVG line descriptors
 
-  // ── STEP 1: Measure subtree widths ──────────────────────────
-  // subtreeWidth(m) = total horizontal space needed for m and all descendants
-  // This is the width needed to lay out the blood node + its children subtrees
-  function subtreeWidth(m){
-    if(placed.has(m.id))return NW; // fallback
-    const spouse=m.spouseId?byId(m.spouseId):null;
-    const showSpouse=spouse&&!isMarriedIn(m)&&members.indexOf(spouse)!==members.indexOf(m);
-    // Actually check if spouse would be rendered alongside this node
-    const spouseShown=spouse&&!placed.has(spouse.id)&&(isMarriedIn(spouse)||(hasBloodParent(m)&&!hasBloodParent(spouse))||(members.indexOf(spouse)>members.indexOf(m)&&!hasBloodParent(spouse)));
-
-    const pool=[m.id,...(spouseShown&&spouse?[spouse.id]:[])];
-    const kids=members.filter(ch=>(ch.parentIds||[]).some(pid=>pool.includes(pid)));
-
-    if(!kids.length) return NW; // just the blood node width for connector purposes
-    // Children total width
-    const kidWidths=kids.map(k=>subtreeWidth(k));
-    const total=kidWidths.reduce((a,b)=>a+b,0)+HGAP*(kids.length-1);
-    return Math.max(NW, total);
-  }
-
-  // ── STEP 2: Position nodes ───────────────────────────────────
-  // positions[id] = {x, y} top-left of that person's node
-  const positions={};
-  const lines=[]; // {type, x1,y1,x2,y2} or {type:'h', x1,y1,x2}
-
-  function layoutFamily(m, bloodX, y){
-    // bloodX = x position for the blood node (left edge)
-    if(placed.has(m.id))return;
+  // Place a subtree rooted at `m`.
+  // `allocLeft` = left edge of this subtree's total allocation.
+  // `allocWidth` = total width allocated (from subtreeAlloc).
+  // `y` = top y for the blood node.
+  function place(m, allocLeft, allocWidth, y){
+    if(placed.has(m.id)) return;
     placed.add(m.id);
 
-    positions[m.id]={x:bloodX, y};
+    // Blood node sits at the left of the allocation
+    const bloodX = allocLeft;
+    const bloodCx = bloodX + NW/2; // center x of blood node
+    positions[m.id] = {x: bloodX, y};
 
-    const spouse=m.spouseId?byId(m.spouseId):null;
-    const spouseShown=spouse&&!placed.has(spouse.id);
-    if(spouseShown){
-      placed.add(spouse.id);
-      // Spouse sits to the right of blood node
-      positions[spouse.id]={x:bloodX+NW+SPOUSE_GAP+MLINE, y};
+    // Spouse to the right
+    const sp = m.spouseId ? byId(m.spouseId) : null;
+    const hasSpouse = sp && !placed.has(sp.id);
+    if(hasSpouse){
+      placed.add(sp.id);
+      positions[sp.id] = {x: bloodX + NW + MLINE, y};
     }
 
-    const pool=[m.id,...(spouseShown&&spouse?[spouse.id]:[])];
-    const kids=members.filter(ch=>
-      !placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid))
+    // Find children
+    const pool = [m.id, ...(hasSpouse ? [sp.id] : [])];
+    const kids = members.filter(ch =>
+      !placed.has(ch.id) &&
+      (ch.parentIds||[]).some(pid => pool.includes(pid))
     );
-    if(!kids.length)return;
+    if(!kids.length) return;
 
-    const kidY=y+NH+VGAP;
-    // blood node center x
-    const bloodCx=bloodX+NW/2;
+    const kidY = y + NH + VGAP;
+    const midY = y + NH + VGAP/2;
 
-    // Compute total width of children row (by blood node widths)
-    const kidWidths=kids.map(k=>subtreeWidth(k));
-    const totalKidsW=kidWidths.reduce((a,b)=>a+b,0)+HGAP*(kids.length-1);
-
-    // Start x so children are centered under the blood node
-    let kidStartX=bloodCx - totalKidsW/2;
-
-    // Vertical line from blood node bottom to horizontal bar
-    const midY=y+NH+VGAP/2;
+    // Vertical drop from blood node center
     lines.push({type:'v', x:bloodCx, y1:y+NH, y2:midY});
 
-    // Collect child blood center xs for horizontal bar
-    const childCxs=[];
-    let cx=kidStartX;
-    kids.forEach((ch,i)=>{
-      const w=kidWidths[i];
-      const chBloodCx=cx+w/2;
-      // Recursively layout child subtree, centering blood node in its allocated width
-      const chBloodX=chBloodCx-NW/2;
-      layoutFamily(ch, chBloodX, kidY);
-      childCxs.push(chBloodCx);
-      // Tick from h-bar down to child blood node top
-      lines.push({type:'v', x:chBloodCx, y1:midY, y2:kidY});
-      cx+=w+HGAP;
+    // Compute each kid's allocation
+    const tempPlaced = new Set([...placed]);
+    const kidAllocs = kids.map(ch => subtreeAlloc(ch, tempPlaced));
+    const totalKidsW = kidAllocs.reduce((a,b)=>a+b,0) + HGAP*(kids.length-1);
+
+    // Center children under the blood node
+    let kx = bloodCx - totalKidsW/2;
+
+    const childBloodCxs = [];
+    kids.forEach((ch, i) => {
+      const alloc = kidAllocs[i];
+      place(ch, kx, alloc, kidY);
+      // Blood center of this child
+      const chBx = kx + NW/2;
+      childBloodCxs.push(chBx);
+      // Tick from h-bar to child blood top
+      lines.push({type:'v', x:chBx, y1:midY, y2:kidY});
+      kx += alloc + HGAP;
     });
 
-    // Horizontal bar spanning all child blood centers
-    if(kids.length>1){
-      lines.push({type:'h', y:midY, x1:childCxs[0], x2:childCxs[childCxs.length-1]});
+    // Horizontal bar spanning child blood centers
+    if(kids.length > 1){
+      lines.push({type:'h', y:midY, x1:childBloodCxs[0], x2:childBloodCxs[childBloodCxs.length-1]});
     }
   }
 
-  // Layout each root
-  // First pass: compute total width for centering
-  const rootWidths=roots.map(r=>subtreeWidth(r));
-  const totalRootsW=rootWidths.reduce((a,b)=>a+b,0)+80*(roots.length-1);
-  let rx=0;
-  roots.forEach((r,i)=>{
-    const w=rootWidths[i];
-    layoutFamily(r, rx+w/2-NW/2, 20);
-    rx+=w+80;
+  // Layout roots side by side
+  const tempPlaced = new Set();
+  const rootAllocs = roots.map(r => subtreeAlloc(r, tempPlaced));
+  let rx = PAD;
+  roots.forEach((r, i) => {
+    place(r, rx, rootAllocs[i], PAD);
+    rx += rootAllocs[i] + HGAP * 2;
   });
 
-  // ── STEP 3: Find canvas dimensions ─────────────────────────
-  const allPos=Object.values(positions);
+  // Canvas size
+  const allPos = Object.values(positions);
   if(!allPos.length){c.innerHTML='<div class="empty-state"><p>Nothing to display.</p></div>';return;}
-  const maxX=Math.max(...allPos.map(p=>p.x))+NW+NW+MLINE+SPOUSE_GAP+20; // extra for spouses
-  const maxY=Math.max(...allPos.map(p=>p.y))+NH+20;
+  // Account for spouse nodes extending right
+  let maxX = PAD;
+  members.forEach(m => {
+    const pos = positions[m.id];
+    if(!pos) return;
+    const sp = m.spouseId ? byId(m.spouseId) : null;
+    const spPos = sp ? positions[sp.id] : null;
+    const rightEdge = spPos ? spPos.x + NW + PAD : pos.x + NW + PAD;
+    if(rightEdge > maxX) maxX = rightEdge;
+  });
+  const maxY = Math.max(...allPos.map(p=>p.y)) + NH + PAD;
 
-  // ── STEP 4: Render HTML ─────────────────────────────────────
-  let html=`<div id="tree-canvas" style="width:${maxX}px;height:${maxY}px;position:relative;">`;
+  // Build HTML
+  let html = `<div style="display:flex;justify-content:center;overflow:auto;padding:0.5rem;">
+    <div style="position:relative;width:${maxX}px;height:${maxY}px;flex-shrink:0;">`;
 
-  // Draw all member nodes
-  members.forEach(m=>{
-    const pos=positions[m.id];
-    if(!pos)return;
-    const d=m.birth?(m.death?`${m.birth}–${m.death}`:`b.${m.birth}`):'';
-    const av=m.photo&&m.photo.startsWith('data:')?`<img src="${m.photo}">`:`${initials(m.name)}`;
-    html+=`<div class="pnode" style="left:${pos.x}px;top:${pos.y}px;" onclick="openProfile('${m.id}')">
+  // Nodes
+  members.forEach(m => {
+    const pos = positions[m.id];
+    if(!pos) return;
+    const d = m.birth?(m.death?`${m.birth}–${m.death}`:`b.${m.birth}`):'';
+    const av = m.photo&&m.photo.startsWith('data:')?`<img src="${m.photo}">`:`${initials(m.name)}`;
+    html += `<div class="pnode" style="left:${pos.x}px;top:${pos.y}px;" onclick="openProfile('${m.id}')">
       <div class="pnode-flag">${m.origin||''}</div>
       <div class="pnode-av">${av}</div>
       <div class="pnode-name">${m.name}</div>
       ${d?`<div class="pnode-dates">${d}</div>`:''}
     </div>`;
-
-    // Marriage line between blood node and spouse
-    const spouse=m.spouseId?byId(m.spouseId):null;
-    const spousePos=spouse?positions[spouse.id]:null;
-    if(spousePos&&hasBloodParent(m)&&!hasBloodParent(spouse)){
-      // Draw marriage line: from blood node right edge to spouse left edge
-      const lx=pos.x+NW;
-      const ly=pos.y+NH/2;
-      const rx2=spousePos.x;
-      // We'll draw this as an SVG line with heart symbol via foreignObject — handled in SVG below
-    }
   });
 
-  // SVG overlay for all lines
-  html+=`<svg id="tree-svg" style="position:absolute;top:0;left:0;width:${maxX}px;height:${maxY}px;overflow:visible;pointer-events:none;">`;
-  html+='<defs><marker id="none"></marker></defs>';
+  // SVG lines
+  html += `<svg style="position:absolute;top:0;left:0;width:${maxX}px;height:${maxY}px;overflow:visible;pointer-events:none;">`;
 
-  // Connector lines (parent-child)
-  lines.forEach(l=>{
-    if(l.type==='v'){
-      html+=`<line x1="${l.x}" y1="${l.y1}" x2="${l.x}" y2="${l.y2}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
-    } else if(l.type==='h'){
-      html+=`<line x1="${l.x1}" y1="${l.y}" x2="${l.x2}" y2="${l.y}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
-    }
+  // Parent-child connectors
+  lines.forEach(l => {
+    if(l.type==='v')
+      html += `<line x1="${l.x}" y1="${l.y1}" x2="${l.x}" y2="${l.y2}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
+    else if(l.type==='h')
+      html += `<line x1="${l.x1}" y1="${l.y}" x2="${l.x2}" y2="${l.y}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
   });
 
-  // Marriage lines between couples
-  members.forEach(m=>{
-    const pos=positions[m.id];
-    if(!pos)return;
-    const spouse=m.spouseId?byId(m.spouseId):null;
-    const spousePos=spouse?positions[spouse.id]:null;
-    if(!spousePos)return;
-    // Only draw once: from the one with lower x to higher x
-    if(pos.x>=spousePos.x)return;
-    const y=pos.y+NH/2;
-    const x1=pos.x+NW;
-    const x2=spousePos.x;
-    const mx=(x1+x2)/2;
-    html+=`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="var(--gold)" stroke-width="2"/>`;
-    html+=`<text x="${mx}" y="${y+5}" text-anchor="middle" font-size="10" fill="var(--gold)" font-family="serif">♥</text>`;
+  // Marriage lines (drawn once, between the pair with lower x)
+  const drawnPairs = new Set();
+  members.forEach(m => {
+    const pos = positions[m.id];
+    if(!pos||!m.spouseId) return;
+    const sp = byId(m.spouseId);
+    const spPos = sp ? positions[sp.id] : null;
+    if(!spPos) return;
+    const pairKey = [m.id, sp.id].sort().join('-');
+    if(drawnPairs.has(pairKey)) return;
+    drawnPairs.add(pairKey);
+    // Always draw from left node's right edge to right node's left edge
+    const leftPos = pos.x < spPos.x ? pos : spPos;
+    const rightPos = pos.x < spPos.x ? spPos : pos;
+    const ly = leftPos.y + NH/2;
+    const x1 = leftPos.x + NW;
+    const x2 = rightPos.x;
+    const mx = (x1+x2)/2;
+    html += `<line x1="${x1}" y1="${ly}" x2="${x2}" y2="${ly}" stroke="var(--gold)" stroke-width="2"/>`;
+    html += `<text x="${mx}" y="${ly+4}" text-anchor="middle" font-size="10" fill="var(--gold)" font-family="serif">♥</text>`;
   });
 
-  html+='</svg>';
-  html+='</div>';
-
-  // Wrap in centering div
-  c.innerHTML=`<div style="display:flex;justify-content:center;overflow:auto;padding:1rem 0;">${html}</div>`;
+  html += '</svg></div></div>';
+  c.innerHTML = html;
 }
 
 // ── EXPANDABLE VIEW ───────────────────────────────────────────
 function renderExpand(){
   const c=document.getElementById('expand-view');
-  if(!members.length){c.innerHTML='<div class="empty-state"><div style="font-size:3rem;opacity:.4;">&#127807;</div><p>No family members yet.</p></div>';return;}
+  if(!members.length){c.innerHTML='<div class="empty-state"><p>No family members yet.</p></div>';return;}
   const placed=new Set();
   const roots=members.filter(m=>!hasBloodParent(m)&&!isMarriedIn(m));
   function expandNode(m){
