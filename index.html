@@ -16,7 +16,6 @@
   --stone:#8B8070;--stone-light:#C4B8A8;
 }
 body{font-family:'Lato',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden;}
-
 nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
 .nav-brand{font-family:'Playfair Display',serif;color:var(--parchment);font-size:1.25rem;font-weight:700;}
 .nav-brand span{color:var(--gold-light);}
@@ -34,9 +33,9 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .hero-ornament{font-size:2.5rem;margin-bottom:1rem;opacity:.7;}
 .hero-title{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);color:var(--parchment);font-weight:700;line-height:1.15;position:relative;}
 .hero-title span{color:var(--gold-light);}
-.hero-sub{font-family:'Playfair Display',serif;font-style:italic;color:var(--stone-light);font-size:1.1rem;margin-top:1rem;position:relative;}
+.hero-sub{font-family:'Playfair Display',serif;font-style:italic;color:var(--stone-light);font-size:1.1rem;margin-top:1rem;}
 .hero-divider{width:80px;height:2px;background:var(--gold);margin:1.5rem auto;}
-.hero-origins{display:flex;justify-content:center;gap:2rem;margin-top:2rem;flex-wrap:wrap;position:relative;}
+.hero-origins{display:flex;justify-content:center;gap:2rem;margin-top:2rem;flex-wrap:wrap;}
 .origin-badge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(184,137,42,.3);border-radius:30px;padding:8px 18px;color:var(--parchment-dark);font-size:.875rem;}
 .home-cta{text-align:center;padding:3rem 2rem;background:var(--parchment);border-bottom:1px solid var(--parchment-dark);}
 .cta-btn{background:var(--terracotta);color:var(--cream);border:none;padding:14px 36px;font-family:'Lato',sans-serif;font-size:1rem;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;cursor:pointer;font-weight:700;}
@@ -51,7 +50,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .heritage-card h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--ink);margin-bottom:.25rem;}
 .heritage-card p{font-size:.85rem;color:var(--stone);line-height:1.6;}
 
-/* TREE PAGE */
+/* TREE */
 .tree-header{background:var(--parchment);border-bottom:1px solid var(--parchment-dark);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
 .tree-header h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--ink);}
 .view-toggle{display:flex;border:1px solid var(--parchment-dark);border-radius:6px;overflow:hidden;}
@@ -65,69 +64,35 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .sync-dot.error{background:var(--terracotta);}
 
 /* ── CLASSIC TREE ── */
-.classic-wrap{display:flex;flex-direction:column;align-items:center;gap:0;min-width:600px;}
-.gen-label-row{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--stone);font-weight:700;text-align:center;width:100%;margin-bottom:6px;}
+.classic-wrap{display:inline-flex;flex-direction:column;align-items:center;min-width:max-content;padding-bottom:2rem;}
+.gen-block{display:flex;flex-direction:column;align-items:center;width:100%;}
+.gen-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--stone);font-weight:700;text-align:center;width:100%;margin-bottom:8px;margin-top:16px;}
+.gen-units-row{display:flex;justify-content:center;align-items:flex-start;gap:40px;flex-wrap:nowrap;}
 
-/* A generation row holds family-groups side by side */
-.gen-row{display:flex;justify-content:center;align-items:flex-start;gap:32px;flex-wrap:wrap;}
+/* Each family unit */
+.family-unit{display:flex;flex-direction:column;align-items:center;}
 
-/* Each family-group = one couple (or single) + their children stacked below */
-.family-group{display:flex;flex-direction:column;align-items:center;}
+/* Couple: person + heart-line + spouse */
+.couple-row{display:flex;align-items:center;}
+.marriage-line{width:22px;height:2px;background:var(--gold);position:relative;flex-shrink:0;}
+.marriage-line::after{content:'♥';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.5rem;color:var(--gold);background:var(--cream);padding:0 2px;line-height:1;}
 
-/* The couple bar: person — heart-line — spouse */
-.couple-bar{display:flex;align-items:center;gap:0;}
-.marriage-line{
-  width:24px;height:2px;
-  background:var(--gold);
-  position:relative;
-  flex-shrink:0;
-}
-.marriage-line::after{
-  content:'♥';
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  font-size:.55rem;color:var(--gold);
-  background:var(--cream);padding:0 2px;
-  line-height:1;
-}
+/* Drop + children */
+.v-drop{width:2px;height:22px;background:var(--parchment-dark);}
+.h-bar-wrap{display:flex;flex-direction:column;align-items:center;width:100%;}
+.h-bar{height:2px;background:var(--parchment-dark);width:100%;}
+.children-row{display:flex;align-items:flex-start;justify-content:center;gap:20px;}
+.child-wrap{display:flex;flex-direction:column;align-items:center;}
+.child-tick{width:2px;height:18px;background:var(--parchment-dark);}
 
-/* Vertical drop from couple down to children bar */
-.drop-line{width:2px;height:24px;background:var(--parchment-dark);margin:0 auto;}
-/* Horizontal bar spanning children */
-.children-bar{display:flex;align-items:flex-start;gap:20px;position:relative;}
-.children-bar::before{
-  content:'';
-  position:absolute;top:0;
-  left:calc(65px);
-  right:calc(65px);
-  height:2px;
-  background:var(--parchment-dark);
-}
-/* Single child — no bar needed */
-.children-bar.single-child::before{display:none;}
-/* Each child column: tick down then node */
-.child-col{display:flex;flex-direction:column;align-items:center;}
-.child-tick{width:2px;height:16px;background:var(--parchment-dark);}
-
-/* PERSON NODE */
-.person-node{
-  background:var(--parchment);
-  border:1.5px solid var(--parchment-dark);
-  border-radius:8px;
-  padding:10px 10px 8px;
-  width:125px;
-  text-align:center;
-  cursor:pointer;
-  transition:all .2s;
-  position:relative;
-  flex-shrink:0;
-}
-.person-node:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 4px 14px rgba(42,31,14,.13);}
-.node-avatar{width:44px;height:44px;border-radius:50%;margin:0 auto 6px;background:var(--olive);display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--cream);font-weight:700;overflow:hidden;border:2px solid var(--gold);}
-.node-avatar img{width:100%;height:100%;object-fit:cover;}
-.node-name{font-family:'Playfair Display',serif;font-size:.78rem;color:var(--ink);font-weight:600;line-height:1.3;}
-.node-dates{font-size:.66rem;color:var(--stone);margin-top:2px;}
-.node-origin{position:absolute;top:5px;right:6px;font-size:.62rem;}
+/* Node card */
+.pnode{background:var(--parchment);border:1.5px solid var(--parchment-dark);border-radius:8px;padding:10px 10px 8px;width:120px;text-align:center;cursor:pointer;transition:all .2s;position:relative;flex-shrink:0;}
+.pnode:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 4px 14px rgba(42,31,14,.13);}
+.pnode-av{width:42px;height:42px;border-radius:50%;margin:0 auto 5px;background:var(--olive);display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--cream);font-weight:700;overflow:hidden;border:2px solid var(--gold);}
+.pnode-av img{width:100%;height:100%;object-fit:cover;}
+.pnode-name{font-family:'Playfair Display',serif;font-size:.77rem;color:var(--ink);font-weight:600;line-height:1.3;}
+.pnode-dates{font-size:.65rem;color:var(--stone);margin-top:2px;}
+.pnode-flag{position:absolute;top:4px;right:5px;font-size:.6rem;}
 
 /* EXPANDABLE */
 .expand-tree{max-width:900px;margin:0 auto;}
@@ -167,14 +132,13 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .admin-body{padding:1.5rem;}
 .admin-member-row{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--parchment);border:1px solid var(--parchment-dark);border-radius:6px;margin-bottom:6px;}
 .admin-member-name{flex:1;font-size:.9rem;color:var(--ink);font-family:'Playfair Display',serif;}
-.admin-member-gen{font-size:.75rem;color:var(--stone);white-space:nowrap;}
 .admin-edit-btn{background:none;border:1px solid var(--olive);color:var(--olive);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.75rem;font-family:'Lato',sans-serif;}
 .admin-delete-btn{background:none;border:1px solid var(--terracotta);color:var(--terracotta);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.75rem;font-family:'Lato',sans-serif;}
 .admin-add-btn{background:var(--olive);color:var(--cream);border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-family:'Lato',sans-serif;font-size:.875rem;font-weight:700;width:100%;margin-bottom:1rem;}
 .admin-add-btn:hover{background:var(--olive-dark);}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .form-full{grid-column:1/-1;}
-.form-section-label{grid-column:1/-1;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--terracotta);font-weight:700;margin-top:.5rem;border-bottom:1px solid var(--parchment-dark);padding-bottom:4px;}
+.form-sec{grid-column:1/-1;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--terracotta);font-weight:700;margin-top:.5rem;border-bottom:1px solid var(--parchment-dark);padding-bottom:4px;}
 .form-group{display:flex;flex-direction:column;gap:4px;}
 .form-group label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-light);font-weight:700;}
 .form-group input,.form-group select,.form-group textarea{background:var(--parchment);border:1px solid var(--parchment-dark);border-radius:4px;padding:8px 10px;font-family:'Lato',sans-serif;font-size:.9rem;color:var(--ink);outline:none;transition:border-color .15s;}
@@ -191,10 +155,10 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .login-error{color:var(--terracotta);font-size:.85rem;margin-bottom:8px;}
 .login-hint{font-size:.75rem;color:var(--stone);margin-top:6px;}
 .empty-state{text-align:center;padding:4rem 2rem;color:var(--stone);}
-.empty-state .empty-icon{font-size:3rem;margin-bottom:1rem;opacity:.4;}
 .firebase-banner{background:#FFF8E7;border:1px solid var(--gold);border-radius:8px;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.85rem;color:var(--ink-light);line-height:1.6;}
 .firebase-banner strong{color:var(--terracotta);}
 .firebase-banner code{background:var(--parchment-dark);padding:1px 5px;border-radius:3px;font-size:.8rem;}
+.tip{font-size:.78rem;color:var(--stone);line-height:1.5;margin-bottom:1rem;background:var(--parchment);border-radius:6px;padding:.6rem .8rem;border-left:3px solid var(--gold);}
 </style>
 </head>
 <body>
@@ -208,7 +172,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   </div>
 </nav>
 
-<!-- HOME -->
 <div id="page-home" class="page active">
   <div class="home-hero">
     <div class="hero-ornament">&#9775;</div>
@@ -228,7 +191,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   <div class="home-about">
     <h2 class="section-title">Our Heritage</h2>
     <div class="section-rule"></div>
-    <p>The Pastor family story spans three continents and centuries of history — from the ancient hilltop city of Albarracín in Spain, through the sun-drenched landscapes of Sicily, to the vibrant culture of Ecuador. This tree is a living record of the people, places, and moments that brought us here.</p>
+    <p>The Pastor family story spans three continents and centuries of history — from the ancient hilltop city of Albarracín in Spain, through the sun-drenched landscapes of Sicily, to the vibrant culture of Ecuador.</p>
   </div>
   <div class="heritage-grid">
     <div class="heritage-card"><div class="flag">🇪🇨</div><h3>Ecuador</h3><p>The heart of the modern Pastor family, rooted in South American tradition and warmth.</p></div>
@@ -237,7 +200,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   </div>
 </div>
 
-<!-- TREE -->
 <div id="page-tree" class="page">
   <div class="tree-header">
     <div>
@@ -255,7 +217,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   </div>
 </div>
 
-<!-- PROFILE MODAL -->
 <div id="profile-modal" class="modal-overlay" style="display:none;" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-header">
@@ -267,7 +228,6 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   </div>
 </div>
 
-<!-- ADMIN -->
 <div id="admin-overlay" class="admin-overlay" style="display:none;">
   <div class="admin-panel">
     <div class="admin-header">
@@ -281,8 +241,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
-// ── FIREBASE CONFIG ──────────────────────────────
-const firebaseConfig = {
+const firebaseConfig={
   apiKey: "AIzaSyB2daCRTzZbYZVC-CYgQpB8n6__1EEc-Bg",
   authDomain: "pastor-family-tree.firebaseapp.com",
   projectId: "pastor-family-tree",
@@ -291,23 +250,21 @@ const firebaseConfig = {
   appId: "1:90284296307:web:88147a3dcd1f3f004a4206",
   measurementId: "G-MDQC0BQDFR"
 };
-const ADMIN_PASSWORD = 'Pastor2024!';
+const ADMIN_PASSWORD='Pastor2024!';
+let db=null,members=[],adminLoggedIn=false,editingId=null,openNodes=new Set(),pendingPhoto=null,currentView='classic',firebaseReady=false;
 
-let db=null, members=[], adminLoggedIn=false, editingId=null;
-let openNodes=new Set(), pendingPhoto=null, currentView='classic', firebaseReady=false;
-
-try {
+try{
   firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
+  db=firebase.firestore();
   db.collection('members').onSnapshot(snap=>{
-    members = snap.docs.map(d=>({id:d.id,...d.data()}));
+    members=snap.docs.map(d=>({id:d.id,...d.data()}));
     setSyncStatus(true,'Live — synced');
     renderTree();
-    if(adminLoggedIn) renderAdminPanel();
-  }, ()=>setSyncStatus(false,'Connection error'));
+    if(adminLoggedIn)renderAdminPanel();
+  },()=>setSyncStatus(false,'Connection error'));
   firebaseReady=true;
-} catch(e) {
-  setSyncStatus(false,'Firebase not configured — showing demo data');
+}catch(e){
+  setSyncStatus(false,'Firebase not configured — demo data');
   loadDemo();
 }
 
@@ -318,11 +275,10 @@ function setSyncStatus(ok,text){
   lbl.textContent=text;
 }
 
-// ── DEMO DATA matching the screenshot ────────────
 function loadDemo(){
   members=[
-    {id:'p1',name:'Lucia Lipari',birth:'1934',death:'',birthplace:'',settingOfBirth:'',hospitalName:'',deathPlace:'',causeOfDeath:'',finalDisposition:'',dispositionLocation:'',origin:'🇪🇨',bio:'',notes:'',photo:'',generation:1,parentIds:[],spouseId:'p2'},
-    {id:'p2',name:'Bolivar Idrovo Pastor',birth:'',death:'',birthplace:'',settingOfBirth:'',hospitalName:'',deathPlace:'',causeOfDeath:'',finalDisposition:'',dispositionLocation:'',origin:'🇪🇨',bio:'',notes:'',photo:'',generation:1,parentIds:[],spouseId:'p1'},
+    {id:'p1',name:'Bolivar Idrovo Pastor',birth:'',death:'',birthplace:'',settingOfBirth:'',hospitalName:'',deathPlace:'',causeOfDeath:'',finalDisposition:'',dispositionLocation:'',origin:'🇪🇨',bio:'',notes:'',photo:'',generation:1,parentIds:[],spouseId:'p2'},
+    {id:'p2',name:'Lucia Lipari',birth:'1934',death:'',birthplace:'',settingOfBirth:'',hospitalName:'',deathPlace:'',causeOfDeath:'',finalDisposition:'',dispositionLocation:'',origin:'🇪🇨',bio:'',notes:'',photo:'',generation:1,parentIds:[],spouseId:'p1'},
     {id:'p3',name:'Juan Pastor',birth:'1963',death:'',birthplace:'',settingOfBirth:'',hospitalName:'',deathPlace:'',causeOfDeath:'',finalDisposition:'',dispositionLocation:'',origin:'🇪🇨',bio:'',notes:'',photo:'',generation:2,parentIds:['p1','p2'],spouseId:'p4'},
     {id:'p4',name:'Karina Delgado',birth:'1970',death:'',birthplace:'',settingOfBirth:'',hospitalName:'',deathPlace:'',causeOfDeath:'',finalDisposition:'',dispositionLocation:'',origin:'🇪🇨',bio:'',notes:'',photo:'',generation:2,parentIds:[],spouseId:'p3'},
     {id:'p5',name:'Audie Pastor',birth:'1960',death:'',birthplace:'',settingOfBirth:'',hospitalName:'',deathPlace:'',causeOfDeath:'',finalDisposition:'',dispositionLocation:'',origin:'🇪🇨',bio:'',notes:'',photo:'',generation:2,parentIds:['p1','p2'],spouseId:''},
@@ -333,11 +289,12 @@ function loadDemo(){
   renderTree();
 }
 
-// ── HELPERS ──────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────────
 function byId(id){return members.find(m=>m.id===id);}
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+function isBloodMember(m){return (m.parentIds||[]).some(pid=>byId(pid));}
 
-function avatarEl(m,size=36){
+function avHTML(m,size=42){
   const colors=['var(--olive)','var(--terracotta-dark)','var(--ink-light)','#5A6B8A','#7A5A3A'];
   const bg=colors[(m.id||'').length%colors.length];
   const fs=size>45?'1.1rem':size>32?'0.85rem':'0.75rem';
@@ -346,23 +303,23 @@ function avatarEl(m,size=36){
   return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;font-size:${fs};color:var(--cream);font-weight:700;border:2px solid var(--gold);flex-shrink:0;">${initials(m.name)}</div>`;
 }
 
-function personNodeHTML(m){
+function nodeHTML(m){
   const d=m.birth?(m.death?`${m.birth}–${m.death}`:`b.${m.birth}`):'';
   const av=m.photo&&m.photo.startsWith('data:')?`<img src="${m.photo}">`:`${initials(m.name)}`;
-  return `<div class="person-node" onclick="openProfile('${m.id}')">
-    <div class="node-origin">${m.origin||''}</div>
-    <div class="node-avatar">${av}</div>
-    <div class="node-name">${m.name}</div>
-    ${d?`<div class="node-dates">${d}</div>`:''}
+  return `<div class="pnode" onclick="openProfile('${m.id}')">
+    <div class="pnode-flag">${m.origin||''}</div>
+    <div class="pnode-av">${av}</div>
+    <div class="pnode-name">${m.name}</div>
+    ${d?`<div class="pnode-dates">${d}</div>`:''}
   </div>`;
 }
 
-// ── NAVIGATION ───────────────────────────────────
+// ── NAVIGATION ────────────────────────────────────────────────
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().includes(p)));
-  if(p==='tree') renderTree();
+  if(p==='tree')renderTree();
 }
 function setView(v){
   currentView=v;
@@ -374,179 +331,183 @@ function setView(v){
 }
 function renderTree(){renderClassic();renderExpand();}
 
-// ── CLASSIC VIEW — proper family-group layout ─────
+// ── CLASSIC VIEW ─────────────────────────────────────────────
 //
-// KEY LOGIC:
-// A "family unit" = one person (or couple) + their blood children.
-// We render the tree recursively starting from root couples/singles.
-// Spouses-by-marriage have no parentIds → they attach to their partner's unit.
-// Blood children have parentIds → they appear below the correct couple.
+// ALGORITHM (no duplicates, correct structure):
+//
+// 1. Build "family units" — each unit is ONE anchor person + optional spouse.
+//    The ANCHOR is always a blood member (has parentIds in the tree), OR a
+//    root person (no parents at all, treated as generation founder).
+//    Married-in spouses (no parentIds) are NEVER anchors — they attach to
+//    their blood-member partner's unit.
+//
+// 2. Walk generation by generation. For each generation, find all people who
+//    should appear. Track every person in a global `placed` Set so nobody
+//    ever appears twice.
+//
+// 3. Children of a unit = members whose parentIds overlap with the unit's IDs.
+//    They are rendered INSIDE the unit, not as separate top-level entries.
 //
 function renderClassic(){
   const c=document.getElementById('classic-view');
-  if(!members.length){
-    c.innerHTML='<div class="empty-state"><div class="empty-icon">&#127807;</div><p>No family members yet. Use the Admin panel to add members.</p></div>';
-    return;
+  if(!members.length){c.innerHTML='<div class="empty-state"><div style="font-size:3rem;opacity:.4;">&#127807;</div><p>No family members yet.</p></div>';return;}
+
+  // placed = everyone who has been assigned to a unit (won't appear again)
+  const placed=new Set();
+
+  // Build units for a given generation
+  // An "anchor" = blood member OR root (no parentIds at all matching anyone)
+  // Their married-in spouse attaches to them
+  function buildUnits(gen){
+    const genPeople=members.filter(m=>m.generation===gen);
+    const units=[];
+    genPeople.forEach(m=>{
+      if(placed.has(m.id))return; // already placed as a spouse or child elsewhere
+
+      // Is this person a married-in spouse? (no blood parents in tree, has a spouse who IS blood or root)
+      const mBlood=isBloodMember(m);
+      const mRoot=!mBlood&&!(m.parentIds||[]).length;
+      const spouse=m.spouseId?byId(m.spouseId):null;
+      const spouseInGen=spouse&&spouse.generation===gen;
+
+      // If this person has no blood parents AND has a spouse who does (or is already placed)
+      // → they are a married-in spouse, skip — they'll attach to their spouse's unit
+      if(!mBlood&&!mRoot&&spouseInGen){
+        // already handled or will be by spouse's iteration — skip
+        return;
+      }
+
+      // Special married-in case: no parentIds at all, spouse exists in same gen and IS blood
+      if(mRoot&&spouseInGen&&isBloodMember(spouse)){
+        // this is the married-in person, spouse is the anchor → skip, spouse will pick them up
+        return;
+      }
+
+      // This person is an anchor — build their unit
+      placed.add(m.id);
+      let spouseNode=null;
+      if(spouse&&spouseInGen&&!placed.has(spouse.id)){
+        placed.add(spouse.id);
+        spouseNode=spouse;
+      }
+      units.push({anchor:m,spouse:spouseNode});
+    });
+    return units;
   }
 
-  // Find roots: members with NO parentIds that exist in the member list
-  const roots = members.filter(m=>{
-    const pids=(m.parentIds||[]).filter(pid=>byId(pid));
-    return pids.length===0;
-  });
+  // Get children of a unit
+  function childrenOf(unit){
+    const ids=[unit.anchor.id,...(unit.spouse?[unit.spouse.id]:[])];
+    return members.filter(ch=>(ch.parentIds||[]).some(pid=>ids.includes(pid)));
+  }
 
-  // Avoid rendering someone twice (they'll appear as a spouse inline)
-  const rendered = new Set();
+  const genLabels={1:'Grandparents / Founders',2:'Parents',3:'Current Generation',4:'Children',5:'Grandchildren',6:'Great-Grandchildren'};
+  const maxGen=Math.max(...members.map(m=>m.generation||1));
 
-  // Build the top-level family groups from roots
-  // A "root couple" = two roots who are spouses
-  // We walk roots and pair them up
-  const rootUnits = [];
-  const rootSeen = new Set();
-  roots.forEach(m=>{
-    if(rootSeen.has(m.id)) return;
-    rootSeen.add(m.id);
-    const spouse = m.spouseId ? byId(m.spouseId) : null;
-    // Only pair if spouse is also a root (no parents)
-    const spouseIsRoot = spouse && roots.find(r=>r.id===spouse.id);
-    if(spouseIsRoot && !rootSeen.has(spouse.id)){
-      rootSeen.add(spouse.id);
-      rootUnits.push({primary:m, spouse});
-    } else if(!spouse || !spouseIsRoot){
-      rootUnits.push({primary:m, spouse:null});
-    }
-  });
-
-  const genLabels={1:'Grandparents / Founders',2:'Parents',3:'Current Generation',4:'Children',5:'Grandchildren',6:'Grandchildren'};
-  const maxGen = members.length ? Math.max(...members.map(m=>m.generation||1)) : 1;
-
-  // Render by generation, grouping children under correct parents
   let html='<div class="classic-wrap">';
 
-  for(let g=1; g<=maxGen; g++){
-    const genMembers = members.filter(m=>m.generation===g);
-    if(!genMembers.length) continue;
+  for(let g=1;g<=maxGen;g++){
+    const units=buildUnits(g);
+    if(!units.length)continue;
 
-    html+=`<div class="gen-label-row">${genLabels[g]||'Generation '+g}</div>`;
-    html+='<div class="gen-row">';
+    html+=`<div class="gen-label">${genLabels[g]||'Generation '+g}</div>`;
+    html+='<div class="gen-units-row">';
 
-    // Build units for this generation
-    // A unit = {primary, spouse} where primary has parentIds (blood) or is a root
-    // Spouses-by-marriage attach to their partner — we skip them as standalone
-    const unitsSeen = new Set();
-    const units = [];
+    units.forEach(unit=>{
+      const kids=childrenOf(unit);
+      html+='<div class="family-unit">';
 
-    genMembers.forEach(m=>{
-      if(unitsSeen.has(m.id)) return;
+      // Couple row
+      html+='<div class="couple-row">';
+      html+=nodeHTML(unit.anchor);
+      if(unit.spouse){
+        html+='<div class="marriage-line"></div>';
+        html+=nodeHTML(unit.spouse);
+      }
+      html+='</div>';
 
-      // Is this person a "married-in" spouse with no blood parents in the tree?
-      // If so, they'll be rendered alongside their spouse's unit — skip standalone
-      const hasBloodParents = (m.parentIds||[]).some(pid=>byId(pid));
-      const spouse = m.spouseId ? byId(m.spouseId) : null;
-      const spouseInSameGen = spouse && spouse.generation===g;
-
-      if(!hasBloodParents && spouseInSameGen){
-        const spouseHasBloodParents = (spouse.parentIds||[]).some(pid=>byId(pid));
-        // If spouse has blood parents (or is a root unit primary), this person is married-in → skip
-        // They'll appear attached to spouse's unit
-        if(spouseHasBloodParents || (!spouseHasBloodParents && byId(spouse.id) && !unitsSeen.has(spouse.id))){
-          // Check if the spouse will be rendered as primary
-          // Married-in: no blood parents, spouse has blood parents → skip, attach to spouse
-          if(spouseHasBloodParents){
-            unitsSeen.add(m.id);
-            return; // rendered inline with spouse below
-          }
+      // Children branch
+      if(kids.length){
+        html+='<div class="v-drop"></div>';
+        if(kids.length===1){
+          // Single child: just a tick and node, no h-bar
+          html+='<div class="child-wrap"><div class="child-tick"></div>';
+          html+=nodeHTML(kids[0]);
+          placed.add(kids[0].id);
+          html+='</div>';
+        } else {
+          // Multiple children: horizontal bar spanning them
+          html+='<div class="h-bar-wrap"><div class="h-bar"></div></div>';
+          html+='<div class="children-row">';
+          kids.forEach(ch=>{
+            placed.add(ch.id);
+            html+='<div class="child-wrap"><div class="child-tick"></div>';
+            html+=nodeHTML(ch);
+            html+='</div>';
+          });
+          html+='</div>';
         }
       }
 
-      unitsSeen.add(m.id);
-      if(spouseInSameGen && !unitsSeen.has(spouse.id)){
-        unitsSeen.add(spouse.id);
-        units.push({primary:m, spouse});
-      } else {
-        units.push({primary:m, spouse:null});
-      }
+      html+='</div>'; // family-unit
     });
 
-    units.forEach(unit=>{
-      // children = members whose parentIds include the primary OR spouse
-      const unitIds=[unit.primary.id,...(unit.spouse?[unit.spouse.id]:[])];
-      const children=members.filter(ch=>{
-        const pids=(ch.parentIds||[]);
-        return unitIds.some(id=>pids.includes(id));
-      });
-
-      html+='<div class="family-group">';
-
-      // Couple bar
-      html+='<div class="couple-bar">';
-      html+=personNodeHTML(unit.primary);
-      if(unit.spouse){
-        html+='<div class="marriage-line"></div>';
-        html+=personNodeHTML(unit.spouse);
-      }
-      html+='</div>'; // couple-bar
-
-      // Children
-      if(children.length){
-        html+='<div class="drop-line"></div>';
-        const isSingle = children.length===1;
-        html+=`<div class="children-bar ${isSingle?'single-child':''}">`;
-        children.forEach(ch=>{
-          html+='<div class="child-col">';
-          html+='<div class="child-tick"></div>';
-          html+=personNodeHTML(ch);
-          html+='</div>';
-        });
-        html+='</div>'; // children-bar
-      }
-
-      html+='</div>'; // family-group
-    });
-
-    html+='</div>'; // gen-row
-
-    if(g<maxGen) html+='<div style="height:8px;"></div>';
+    html+='</div>'; // gen-units-row
   }
 
   html+='</div>';
   c.innerHTML=html;
 }
 
-// ── EXPANDABLE VIEW ──────────────────────────────
+// ── EXPANDABLE VIEW ───────────────────────────────────────────
 function renderExpand(){
   const c=document.getElementById('expand-view');
-  if(!members.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">&#127807;</div><p>No family members yet.</p></div>';return;}
-  const roots=members.filter(m=>!(m.parentIds||[]).some(pid=>byId(pid)));
+  if(!members.length){c.innerHTML='<div class="empty-state"><div style="font-size:3rem;opacity:.4;">&#127807;</div><p>No family members yet.</p></div>';return;}
+  // Roots = no blood parents in the tree
+  const roots=members.filter(m=>!isBloodMember(m)&&!m.spouseId);
+  const rootsWithSpouse=members.filter(m=>!isBloodMember(m)&&m.spouseId&&!byId(m.spouseId)?.parentIds?.some(pid=>byId(pid)));
+  const allRoots=[...roots,...rootsWithSpouse.filter(m=>!roots.find(r=>r.id===m.id))];
+  // Actually: just find members with no blood parents, deduplicate couples
   const seen=new Set();
+  const trueRoots=members.filter(m=>!isBloodMember(m));
+  const dedupedRoots=[];
+  trueRoots.forEach(m=>{
+    if(seen.has(m.id))return;
+    seen.add(m.id);
+    const sp=m.spouseId?byId(m.spouseId):null;
+    if(sp)seen.add(sp.id);
+    dedupedRoots.push(m);
+  });
+
+  const seen2=new Set();
   let html='<div class="expand-tree">';
-  roots.forEach(m=>{ if(!seen.has(m.id)) html+=renderExpandNode(m,seen); });
+  dedupedRoots.forEach(m=>{if(!seen2.has(m.id))html+=expandNode(m,seen2);});
   html+='</div>';
   c.innerHTML=html;
 }
 
-function renderExpandNode(m,seen){
+function expandNode(m,seen){
   if(seen.has(m.id))return'';
   seen.add(m.id);
   const spouse=m.spouseId?byId(m.spouseId):null;
+  if(spouse)seen.add(spouse.id);
   const myIds=[m.id,...(spouse?[spouse.id]:[])];
-  const children=members.filter(ch=>(ch.parentIds||[]).some(pid=>myIds.includes(pid)));
-  const hasChildren=children.length>0, isOpen=openNodes.has(m.id);
-  const dateStr=m.birth?(m.death?`${m.birth}–${m.death}`:`b. ${m.birth}`):'';
-  if(spouse) seen.add(spouse.id);
+  const kids=members.filter(ch=>(ch.parentIds||[]).some(pid=>myIds.includes(pid)));
+  const hasKids=kids.length>0,isOpen=openNodes.has(m.id);
+  const d=m.birth?(m.death?`${m.birth}–${m.death}`:`b. ${m.birth}`):'';
 
   let html=`<div class="expand-node"><div class="expand-row" onclick="toggleExpand('${m.id}')">
-    <div class="expand-toggle ${!hasChildren?'leaf':isOpen?'open':''}">${hasChildren?'&#9658;':'&#9670;'}</div>
-    ${avatarEl(m,36)}
+    <div class="expand-toggle ${!hasKids?'leaf':isOpen?'open':''}">${hasKids?'&#9658;':'&#9670;'}</div>
+    ${avHTML(m,34)}
     <div class="expand-info">
       <div class="expand-name">${m.origin||''} ${m.name}${spouse?` <span style="color:var(--gold);font-size:.8rem;">♥ ${spouse.name}</span>`:''}</div>
-      <div class="expand-meta">${[dateStr,m.birthplace].filter(Boolean).join(' · ')}</div>
+      <div class="expand-meta">${[d,m.birthplace].filter(Boolean).join(' · ')}</div>
     </div>
     <button class="expand-view-btn" onclick="event.stopPropagation();openProfile('${m.id}')">Profile</button>
   </div>`;
-  if(hasChildren&&isOpen){
+  if(hasKids&&isOpen){
     html+='<div class="expand-children">';
-    children.forEach(ch=>{ html+=renderExpandNode(ch,seen); });
+    kids.forEach(ch=>{html+=expandNode(ch,seen);});
     html+='</div>';
   }
   html+='</div>';
@@ -555,52 +516,35 @@ function renderExpandNode(m,seen){
 
 function toggleExpand(id){openNodes.has(id)?openNodes.delete(id):openNodes.add(id);renderExpand();}
 
-// ── PROFILE MODAL ────────────────────────────────
+// ── PROFILE MODAL ─────────────────────────────────────────────
 function openProfile(id){
-  const m=byId(id); if(!m)return;
-  const dateStr=m.birth?(m.death?`${m.birth} – ${m.death}`:`Born ${m.birth}`):'Dates unknown';
+  const m=byId(id);if(!m)return;
+  const d=m.birth?(m.death?`${m.birth} – ${m.death}`:`Born ${m.birth}`):'Dates unknown';
   document.getElementById('modal-avatar').innerHTML=m.photo&&m.photo.startsWith('data:')?`<img src="${m.photo}" style="width:100%;height:100%;object-fit:cover;">`:initials(m.name);
   document.getElementById('modal-name').textContent=m.name;
-  document.getElementById('modal-dates').textContent=dateStr;
-
-  const f=(lbl,val)=>`<div class="modal-field"><label>${lbl}</label><p>${val}</p></div>`;
-  const s=(t)=>`<div class="modal-section">${t}</div>`;
-  const link=(pid)=>{const p=byId(pid);return p?`<span style="cursor:pointer;color:var(--terracotta);text-decoration:underline;" onclick="document.getElementById('profile-modal').style.display='none';setTimeout(()=>openProfile('${p.id}'),50)">${p.name}</span>`:null;};
+  document.getElementById('modal-dates').textContent=d;
+  const f=(l,v)=>`<div class="modal-field"><label>${l}</label><p>${v}</p></div>`;
+  const s=t=>`<div class="modal-section">${t}</div>`;
+  const lnk=pid=>{const p=byId(pid);return p?`<span style="cursor:pointer;color:var(--terracotta);text-decoration:underline;" onclick="document.getElementById('profile-modal').style.display='none';setTimeout(()=>openProfile('${p.id}'),60)">${p.name}</span>`:null;};
   let body='';
-
-  if(m.birthplace||m.settingOfBirth||m.hospitalName){
-    body+=s('Birth');
-    if(m.birthplace) body+=f('Birthplace',(m.origin||'')+' '+m.birthplace);
-    if(m.settingOfBirth) body+=f('Setting of Birth',m.settingOfBirth);
-    if(m.hospitalName) body+=f('Hospital Name',m.hospitalName);
-  }
-  if(m.death||m.deathPlace||m.causeOfDeath||m.finalDisposition||m.dispositionLocation){
-    body+=s('Death & Disposition');
-    if(m.deathPlace) body+=f('Place of Death',m.deathPlace);
-    if(m.causeOfDeath) body+=f('Cause of Death',m.causeOfDeath);
-    if(m.finalDisposition) body+=f('Final Disposition',m.finalDisposition);
-    if(m.dispositionLocation) body+=f('Disposition Location',m.dispositionLocation);
-  }
-  if(m.bio||m.notes){
-    body+=s('Biography & Notes');
-    if(m.bio) body+=f('Biography',m.bio);
-    if(m.notes) body+=f('Notes',m.notes);
-  }
+  if(m.birthplace||m.settingOfBirth||m.hospitalName){body+=s('Birth');if(m.birthplace)body+=f('Birthplace',(m.origin||'')+' '+m.birthplace);if(m.settingOfBirth)body+=f('Setting of Birth',m.settingOfBirth);if(m.hospitalName)body+=f('Hospital Name',m.hospitalName);}
+  if(m.death||m.deathPlace||m.causeOfDeath||m.finalDisposition||m.dispositionLocation){body+=s('Death & Disposition');if(m.deathPlace)body+=f('Place of Death',m.deathPlace);if(m.causeOfDeath)body+=f('Cause of Death',m.causeOfDeath);if(m.finalDisposition)body+=f('Final Disposition',m.finalDisposition);if(m.dispositionLocation)body+=f('Disposition Location',m.dispositionLocation);}
+  if(m.bio||m.notes){body+=s('Biography & Notes');if(m.bio)body+=f('Biography',m.bio);if(m.notes)body+=f('Notes',m.notes);}
   const spouse=m.spouseId?byId(m.spouseId):null;
   const parents=(m.parentIds||[]).map(pid=>byId(pid)).filter(Boolean);
   const children=members.filter(ch=>(ch.parentIds||[]).includes(m.id));
   if(spouse||parents.length||children.length){
     body+=s('Family');
-    if(spouse) body+=f('Spouse',link(spouse.id)||spouse.name);
-    if(parents.length) body+=f('Parents',parents.map(p=>link(p.id)||p.name).join(', '));
-    if(children.length) body+=f('Children',children.map(ch=>link(ch.id)||ch.name).join(', '));
+    if(spouse)body+=f('Spouse',lnk(spouse.id)||spouse.name);
+    if(parents.length)body+=f('Parents',parents.map(p=>lnk(p.id)||p.name).join(', '));
+    if(children.length)body+=f('Children',children.map(ch=>lnk(ch.id)||ch.name).join(', '));
   }
   document.getElementById('modal-body').innerHTML=body||'<p style="color:var(--stone);">No additional details recorded.</p>';
   document.getElementById('profile-modal').style.display='flex';
 }
 function closeModal(e){if(e.target.id==='profile-modal')document.getElementById('profile-modal').style.display='none';}
 
-// ── ADMIN ────────────────────────────────────────
+// ── ADMIN ─────────────────────────────────────────────────────
 function openAdmin(){document.getElementById('admin-overlay').style.display='flex';adminLoggedIn?renderAdminPanel():renderLogin();}
 function closeAdminPanel(){document.getElementById('admin-overlay').style.display='none';editingId=null;pendingPhoto=null;}
 
@@ -614,21 +558,20 @@ function renderLogin(){
     <p class="login-hint">Default: <code>Pastor2024!</code></p>
   </div>`;
 }
-function doLogin(){
-  if(document.getElementById('admin-pw').value===ADMIN_PASSWORD){adminLoggedIn=true;renderAdminPanel();}
-  else document.getElementById('login-error').style.display='block';
-}
+function doLogin(){if(document.getElementById('admin-pw').value===ADMIN_PASSWORD){adminLoggedIn=true;renderAdminPanel();}else document.getElementById('login-error').style.display='block';}
 
 function renderAdminPanel(){
   const list=members.map(m=>{
-    const spouse=m.spouseId?byId(m.spouseId):null;
-    const hasBloodParents=(m.parentIds||[]).some(pid=>byId(pid));
-    const tag=spouse?`<span style="font-size:.7rem;color:var(--gold);">♥ ${spouse.name}</span>`:'';
-    const ptag=hasBloodParents?`<span style="font-size:.7rem;color:var(--olive);">↑ blood</span>`:`<span style="font-size:.7rem;color:var(--stone);">married-in</span>`;
+    const sp=m.spouseId?byId(m.spouseId):null;
+    const blood=isBloodMember(m);
     return `<div class="admin-member-row">
-      ${avatarEl(m,30)}
-      <div style="flex:1;"><div class="admin-member-name">${m.name}</div>${tag}</div>
-      <div class="admin-member-gen" style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;"><span>Gen ${m.generation}</span>${ptag}</div>
+      ${avHTML(m,30)}
+      <div style="flex:1;">
+        <div class="admin-member-name">${m.name}</div>
+        ${sp?`<span style="font-size:.7rem;color:var(--gold);">♥ ${sp.name}</span>`:''}
+      </div>
+      <span style="font-size:.7rem;color:${blood?'var(--olive)':'var(--stone)'};margin-right:4px;">${blood?'blood':'married-in'}</span>
+      <span style="font-size:.72rem;color:var(--stone);margin-right:6px;">Gen ${m.generation}</span>
       <button class="admin-edit-btn" onclick="editMember('${m.id}')">Edit</button>
       <button class="admin-delete-btn" onclick="deleteMember('${m.id}')">Delete</button>
     </div>`;
@@ -642,54 +585,56 @@ function renderAdminPanel(){
 }
 
 function editMember(id){
-  editingId=id; pendingPhoto=null;
+  editingId=id;pendingPhoto=null;
   const m=id?byId(id):null;
   const v=(k,fb='')=>m?(m[k]!=null?m[k]:fb):fb;
-  const parentIds=v('parentIds',[]);
-  const parentOptions=members.filter(x=>x.id!==id).map(x=>`<option value="${x.id}" ${parentIds.includes(x.id)?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
-  const spouseOptions=members.filter(x=>x.id!==id).map(x=>`<option value="${x.id}" ${v('spouseId')===x.id?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
-  const genOptions=[1,2,3,4,5,6].map(g=>`<option value="${g}" ${v('generation',1)===g?'selected':''}>${g}</option>`).join('');
-  const settingOptions=['','Home','Hospital','Clinic','Other'].map(s=>`<option value="${s}" ${v('settingOfBirth')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
-  const dispositionOptions=['','Burial','Cremation','Entombment','Donation to Science','Other'].map(s=>`<option value="${s}" ${v('finalDisposition')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
+  const pIds=v('parentIds',[]);
+  const popts=members.filter(x=>x.id!==id).map(x=>`<option value="${x.id}" ${pIds.includes(x.id)?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
+  const sopts=members.filter(x=>x.id!==id).map(x=>`<option value="${x.id}" ${v('spouseId')===x.id?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
+  const gopts=[1,2,3,4,5,6].map(g=>`<option value="${g}" ${v('generation',1)===g?'selected':''}>${g}</option>`).join('');
+  const stopts=['','Home','Hospital','Clinic','Other'].map(s=>`<option value="${s}" ${v('settingOfBirth')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
+  const dopts=['','Burial','Cremation','Entombment','Donation to Science','Other'].map(s=>`<option value="${s}" ${v('finalDisposition')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
 
   document.getElementById('admin-content').innerHTML=`<div class="admin-body">
-    <h4 style="font-family:'Playfair Display',serif;color:var(--ink);margin-bottom:.25rem;">${id?'Edit':'Add'} Family Member</h4>
-    <p style="font-size:.8rem;color:var(--stone);margin-bottom:1rem;">Blood relatives = select parents below. Married-in spouses = leave parents empty, just set spouse.</p>
+    <h4 style="font-family:'Playfair Display',serif;color:var(--ink);margin-bottom:.5rem;">${id?'Edit':'Add'} Family Member</h4>
+    <div class="tip">
+      <strong>Blood relative</strong> (child of someone in the tree) → select their parents below.<br>
+      <strong>Married-in spouse</strong> (joined the family by marriage) → leave parents empty, just set their spouse.
+    </div>
     <div class="form-grid">
-      <div class="form-section-label">General</div>
+      <div class="form-sec">General</div>
       <div class="form-group form-full"><label>Full Name *</label><input id="f-name" value="${v('name')}"></div>
-      <div class="form-group"><label>Heritage Flag (emoji)</label><input id="f-origin" value="${v('origin','🇪🇨')}" placeholder="🇪🇨 🇮🇹 🇪🇸"></div>
-      <div class="form-group"><label>Generation *</label><select id="f-gen">${genOptions}</select></div>
+      <div class="form-group"><label>Heritage Flag</label><input id="f-origin" value="${v('origin','🇪🇨')}" placeholder="🇪🇨 🇮🇹 🇪🇸"></div>
+      <div class="form-group"><label>Generation *</label><select id="f-gen">${gopts}</select></div>
 
-      <div class="form-section-label">Family Relationships</div>
+      <div class="form-sec">Family Relationships</div>
       <div class="form-group form-full">
-        <label>Blood Parents (hold Ctrl/Cmd to select 2)</label>
-        <select id="f-parents" multiple size="5"><option value="">— None —</option>${parentOptions}</select>
-        <span style="font-size:.71rem;color:var(--stone);margin-top:3px;">Only select parents if this person is a blood descendant. Leave empty for married-in spouses.</span>
+        <label>Blood Parents (Ctrl/Cmd + click to select 2)</label>
+        <select id="f-parents" multiple size="5"><option value="">— None —</option>${popts}</select>
       </div>
       <div class="form-group form-full">
         <label>Spouse / Partner</label>
-        <select id="f-spouse"><option value="">— None —</option>${spouseOptions}</select>
+        <select id="f-spouse"><option value="">— None —</option>${sopts}</select>
       </div>
 
-      <div class="form-section-label">Birth</div>
+      <div class="form-sec">Birth</div>
       <div class="form-group"><label>Birth Year</label><input id="f-birth" value="${v('birth')}"></div>
       <div class="form-group"><label>Birthplace</label><input id="f-birthplace" value="${v('birthplace')}"></div>
-      <div class="form-group"><label>Setting of Birth</label><select id="f-settingOfBirth">${settingOptions}</select></div>
-      <div class="form-group"><label>Hospital Name (if applicable)</label><input id="f-hospitalName" value="${v('hospitalName')}"></div>
+      <div class="form-group"><label>Setting of Birth</label><select id="f-sob">${stopts}</select></div>
+      <div class="form-group"><label>Hospital Name</label><input id="f-hosp" value="${v('hospitalName')}"></div>
 
-      <div class="form-section-label">Death & Disposition</div>
+      <div class="form-sec">Death & Disposition</div>
       <div class="form-group"><label>Death Year</label><input id="f-death" value="${v('death')}"></div>
-      <div class="form-group"><label>Place of Death</label><input id="f-deathPlace" value="${v('deathPlace')}"></div>
-      <div class="form-group"><label>Cause of Death</label><input id="f-causeOfDeath" value="${v('causeOfDeath')}"></div>
-      <div class="form-group"><label>Final Disposition</label><select id="f-finalDisposition">${dispositionOptions}</select></div>
-      <div class="form-group form-full"><label>Disposition Location</label><input id="f-dispositionLocation" value="${v('dispositionLocation')}"></div>
+      <div class="form-group"><label>Place of Death</label><input id="f-dp" value="${v('deathPlace')}"></div>
+      <div class="form-group"><label>Cause of Death</label><input id="f-cod" value="${v('causeOfDeath')}"></div>
+      <div class="form-group"><label>Final Disposition</label><select id="f-fd">${dopts}</select></div>
+      <div class="form-group form-full"><label>Disposition Location</label><input id="f-dl" value="${v('dispositionLocation')}"></div>
 
-      <div class="form-section-label">Biography & Notes</div>
+      <div class="form-sec">Biography & Notes</div>
       <div class="form-group form-full"><label>Biography</label><textarea id="f-bio">${v('bio')}</textarea></div>
       <div class="form-group form-full"><label>Notes</label><textarea id="f-notes">${v('notes')}</textarea></div>
 
-      <div class="form-section-label">Profile Photo</div>
+      <div class="form-sec">Profile Photo</div>
       <div class="form-group form-full"><label>Upload Photo</label><input type="file" id="f-photo" accept="image/*" onchange="previewPhoto(this)"></div>
       <div id="photo-preview" class="form-full"></div>
     </div>
@@ -698,12 +643,11 @@ function editMember(id){
       <button class="btn-cancel" onclick="renderAdminPanel()">Cancel</button>
     </div>
   </div>`;
-
-  if(m&&m.photo) document.getElementById('photo-preview').innerHTML=`<img src="${m.photo}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);">`;
+  if(m&&m.photo)document.getElementById('photo-preview').innerHTML=`<img src="${m.photo}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);">`;
 }
 
 function previewPhoto(input){
-  const file=input.files[0]; if(!file)return;
+  const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{pendingPhoto=e.target.result;document.getElementById('photo-preview').innerHTML=`<img src="${pendingPhoto}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);">`;};
   reader.readAsDataURL(file);
@@ -712,39 +656,38 @@ function previewPhoto(input){
 async function saveMember(){
   const name=document.getElementById('f-name').value.trim();
   if(!name){alert('Name is required.');return;}
-  const parentSel=document.getElementById('f-parents');
-  const parentIds=Array.from(parentSel.selectedOptions).map(o=>o.value).filter(v=>v&&v!=='').slice(0,2);
+  const pSel=document.getElementById('f-parents');
+  const parentIds=Array.from(pSel.selectedOptions).map(o=>o.value).filter(v=>v&&v!=='').slice(0,2);
   const spouseId=document.getElementById('f-spouse').value||'';
-  const existingPhoto=editingId?(byId(editingId)||{}).photo||'':'';
+  const existing=editingId?(byId(editingId)||{}).photo||'':'';
   const data={
-    name, origin:document.getElementById('f-origin').value.trim(),
+    name,origin:document.getElementById('f-origin').value.trim(),
     generation:parseInt(document.getElementById('f-gen').value),
-    parentIds, spouseId,
+    parentIds,spouseId,
     birth:document.getElementById('f-birth').value.trim(),
     birthplace:document.getElementById('f-birthplace').value.trim(),
-    settingOfBirth:document.getElementById('f-settingOfBirth').value,
-    hospitalName:document.getElementById('f-hospitalName').value.trim(),
+    settingOfBirth:document.getElementById('f-sob').value,
+    hospitalName:document.getElementById('f-hosp').value.trim(),
     death:document.getElementById('f-death').value.trim(),
-    deathPlace:document.getElementById('f-deathPlace').value.trim(),
-    causeOfDeath:document.getElementById('f-causeOfDeath').value.trim(),
-    finalDisposition:document.getElementById('f-finalDisposition').value,
-    dispositionLocation:document.getElementById('f-dispositionLocation').value.trim(),
+    deathPlace:document.getElementById('f-dp').value.trim(),
+    causeOfDeath:document.getElementById('f-cod').value.trim(),
+    finalDisposition:document.getElementById('f-fd').value,
+    dispositionLocation:document.getElementById('f-dl').value.trim(),
     bio:document.getElementById('f-bio').value.trim(),
     notes:document.getElementById('f-notes').value.trim(),
-    photo:pendingPhoto||existingPhoto,
+    photo:pendingPhoto||existing,
   };
   pendingPhoto=null;
-
   if(db){
     try{
-      let savedId=editingId;
-      if(editingId) await db.collection('members').doc(editingId).set(data);
-      else{const ref=await db.collection('members').add(data);savedId=ref.id;}
-      if(spouseId) await db.collection('members').doc(spouseId).update({spouseId:savedId});
+      let sid=editingId;
+      if(editingId)await db.collection('members').doc(editingId).set(data);
+      else{const ref=await db.collection('members').add(data);sid=ref.id;}
+      if(spouseId)await db.collection('members').doc(spouseId).update({spouseId:sid});
     }catch(e){alert('Save failed: '+e.message);return;}
-  } else {
+  }else{
     if(editingId){const i=members.findIndex(x=>x.id===editingId);members[i]={...members[i],...data};}
-    else{const nid='demo'+Date.now();members.push({id:nid,...data});if(spouseId){const s=byId(spouseId);if(s)s.spouseId=nid;}}
+    else{const nid='d'+Date.now();members.push({id:nid,...data});if(spouseId){const s=byId(spouseId);if(s)s.spouseId=nid;}}
     renderTree();
   }
   renderAdminPanel();
@@ -756,14 +699,12 @@ async function deleteMember(id){
   if(db){
     try{
       await db.collection('members').doc(id).delete();
-      const batch=db.batch();
-      if(m&&m.spouseId) batch.update(db.collection('members').doc(m.spouseId),{spouseId:''});
-      members.filter(x=>(x.parentIds||[]).includes(id)).forEach(x=>{
-        batch.update(db.collection('members').doc(x.id),{parentIds:x.parentIds.filter(p=>p!==id)});
-      });
-      await batch.commit();
+      const b=db.batch();
+      if(m&&m.spouseId)b.update(db.collection('members').doc(m.spouseId),{spouseId:''});
+      members.filter(x=>(x.parentIds||[]).includes(id)).forEach(x=>b.update(db.collection('members').doc(x.id),{parentIds:x.parentIds.filter(p=>p!==id)}));
+      await b.commit();
     }catch(e){alert('Delete failed: '+e.message);}
-  } else {
+  }else{
     members=members.filter(x=>x.id!==id);
     members.forEach(x=>{if(x.spouseId===id)x.spouseId='';if(x.parentIds)x.parentIds=x.parentIds.filter(p=>p!==id);});
     renderTree();renderAdminPanel();
