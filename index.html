@@ -317,81 +317,55 @@ function renderClassic(){
 
   const placed=new Set();
   const roots=members.filter(m=>!hasBloodParent(m)&&!isMarriedIn(m));
-  const positions={}; // id -> {x,y}
-  const lines=[];     // connector line descriptors
+  const positions={};
+  const lines=[];
 
   function place(m, allocLeft, allocW, y){
     if(placed.has(m.id))return;
     placed.add(m.id);
-
     const bloodX=allocLeft;
     positions[m.id]={x:bloodX, y};
-
     const sp=m.spouseId?byId(m.spouseId):null;
     const hasSpouse=sp&&!placed.has(sp.id);
     if(hasSpouse){
       placed.add(sp.id);
       positions[sp.id]={x:bloodX+NW+MLINE, y};
     }
-
-    // ── KEY CHANGE: drop point is the COUPLE CENTER ──────────
-    // If there's a spouse: couple center = midpoint of the marriage line
-    //   = blood node right edge + MLINE/2
-    //   = bloodX + NW + MLINE/2
-    // If solo: couple center = blood node center = bloodX + NW/2
-    const coupleCx = hasSpouse
-      ? bloodX + NW + MLINE/2   // midpoint of the marriage line between the two nodes
-      : bloodX + NW/2;           // center of solo node
-
+    const coupleCx=hasSpouse ? bloodX+NW+MLINE/2 : bloodX+NW/2;
     const pool=[m.id,...(hasSpouse?[sp.id]:[])];
-    const kids=members.filter(ch=>
-      !placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid))
-    );
+    const kids=members.filter(ch=>!placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
     if(!kids.length)return;
-
     const kidY=y+NH+VGAP;
     const midY=y+NH+VGAP/2;
-
-    // Vertical drop from couple center
     lines.push({type:'v', x:coupleCx, y1:y+NH, y2:midY});
-
-    // Compute child allocations and positions
     const tmp=new Set([...placed]);
     const kidAllocs=kids.map(ch=>subtreeAlloc(ch,tmp));
     const totalKidsW=kidAllocs.reduce((a,b)=>a+b,0)+HGAP*(kids.length-1);
-
-    // Center children row under the couple center
     let kx=coupleCx-totalKidsW/2;
-
     const childBloodCxs=[];
     kids.forEach((ch,i)=>{
       const alloc=kidAllocs[i];
-      // Blood node center within this child's allocation = kx + NW/2
       const chBloodCx=kx+NW/2;
       place(ch, kx, alloc, kidY);
       childBloodCxs.push(chBloodCx);
       lines.push({type:'v', x:chBloodCx, y1:midY, y2:kidY});
       kx+=alloc+HGAP;
     });
-
-    // Horizontal bar spanning all child blood centers
     if(kids.length>1){
       lines.push({type:'h', y:midY, x1:childBloodCxs[0], x2:childBloodCxs[childBloodCxs.length-1]});
     }
   }
 
-  // Layout roots
   const tmp=new Set();
   const rootAllocs=roots.map(r=>subtreeAlloc(r,tmp));
-  const totalRootsW=rootAllocs.reduce((a,b)=>a+b,0)+HGAP*2*(roots.length-1);
+  const totalTreeW=rootAllocs.reduce((a,b)=>a+b,0)+HGAP*2*(roots.length-1)+PAD*2;
   let rx=PAD;
   roots.forEach((r,i)=>{
     place(r, rx, rootAllocs[i], PAD);
     rx+=rootAllocs[i]+HGAP*2;
   });
 
-  // Canvas dimensions
-  let maxX=Math.max(totalRootsW+PAD*2, PAD), maxY=PAD;
+  let maxX=PAD, maxY=PAD;
   members.forEach(m=>{
     const pos=positions[m.id];
     if(!pos)return;
@@ -402,11 +376,10 @@ function renderClassic(){
     if(pos.y+NH+PAD>maxY)maxY=pos.y+NH+PAD;
   });
 
-  // Build HTML
-  let html=`<div style="overflow:auto;padding:.5rem;">
-  <div style="margin:0 auto;width:fit-content;">`;
+  const canvasW=Math.max(maxX, totalTreeW);
 
-  // Render nodes
+  let html=`<div style="width:100%;overflow:auto;"><div style="min-width:${canvasW}px;display:flex;justify-content:center;padding:.5rem 0;"><div style="position:relative;width:${canvasW}px;height:${maxY}px;">`;
+
   members.forEach(m=>{
     const pos=positions[m.id];
     if(!pos)return;
@@ -420,18 +393,13 @@ function renderClassic(){
     </div>`;
   });
 
-  // SVG overlay
-  html+=`<svg style="position:absolute;top:0;left:0;width:${maxX}px;height:${maxY}px;overflow:visible;pointer-events:none;">`;
-
-  // Parent-child connectors
+  html+=`<svg style="position:absolute;top:0;left:0;width:${canvasW}px;height:${maxY}px;overflow:visible;pointer-events:none;">`;
   lines.forEach(l=>{
     if(l.type==='v')
       html+=`<line x1="${l.x}" y1="${l.y1}" x2="${l.x}" y2="${l.y2}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
     else
       html+=`<line x1="${l.x1}" y1="${l.y}" x2="${l.x2}" y2="${l.y}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
   });
-
-  // Marriage lines (drawn once per pair)
   const drawn=new Set();
   members.forEach(m=>{
     const pos=positions[m.id];
@@ -450,8 +418,7 @@ function renderClassic(){
     html+=`<line x1="${x1}" y1="${ly}" x2="${x2}" y2="${ly}" stroke="var(--gold)" stroke-width="2"/>`;
     html+=`<text x="${mx}" y="${ly+4}" text-anchor="middle" font-size="10" fill="var(--gold)" font-family="serif">♥</text>`;
   });
-
-  html+='</svg></div></div>';
+  html+='</svg></div></div></div>';
   c.innerHTML=html;
 }
 
