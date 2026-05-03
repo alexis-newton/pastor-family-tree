@@ -285,8 +285,13 @@ function subtreeAlloc(m,ps){
   const sp=m.spouseId?byId(m.spouseId):null;
   const hasSp=sp&&!ps.has(sp.id);
   const coupleW=NW+(hasSp?MLINE+NW:0);
-  const pool=[m.id,...(hasSp?[sp.id]:[])];
-  const kids=members.filter(ch=>!ps.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
+  // Include ALL of this person's partners in the pool for finding children
+const allPartnerIds=[
+  ...(hasSp?[sp.id]:[]),
+  ...(m.partnerIds||[])
+];
+const pool=[m.id,...allPartnerIds];
+const kids=members.filter(ch=>!placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
   if(!kids.length)return coupleW;
   const tmp=new Set([...ps,m.id,...(hasSp?[sp.id]:[])]);
   // Each kid needs at least their own couple footprint worth of space
@@ -563,6 +568,8 @@ function editMember(id){
   const pIds=v('parentIds',[]);
   const popts=[...members].filter(x=>x.id!==id).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}" ${pIds.includes(x.id)?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
   const sopts=[...members].filter(x=>x.id!==id).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}" ${v('spouseId')===x.id?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
+  const partnerIds=v('partnerIds',[]);
+  const partnerOpts=[...members].filter(x=>x.id!==id).sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${x.id}" ${partnerIds.includes(x.id)?'selected':''}>${x.name} (Gen ${x.generation})</option>`).join('');
   const gopts=[1,2,3,4,5,6].map(g=>`<option value="${g}" ${v('generation',1)===g?'selected':''}>${g}</option>`).join('');
   const stopts=['','Home','Hospital','Clinic','Other'].map(s=>`<option value="${s}" ${v('settingOfBirth')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
   const dopts=['','Burial','Cremation','Entombment','Donation to Science','Other'].map(s=>`<option value="${s}" ${v('finalDisposition')===s?'selected':''}>${s||'— Select —'}</option>`).join('');
@@ -580,6 +587,11 @@ function editMember(id){
         <select id="f-parents" multiple size="5"><option value="">— None —</option>${popts}</select>
       </div>
       <div class="form-group form-full"><label>Spouse / Partner</label><select id="f-spouse"><option value="">— None —</option>${sopts}</select></div>
+      <div class="form-group form-full">
+        <label>Additional Partners (past relationships — Ctrl/Cmd to select multiple)</label>
+        <select id="f-partners" multiple size="4"><option value="">— None —</option>${partnerOpts}</select>
+        <span style="font-size:.71rem;color:var(--stone);margin-top:3px;">For partners outside the primary spouse. Their shared children will still branch from this person.</span>
+      </div>
       <div class="form-sec">Birth</div>
       <div class="form-group"><label>Birth Year</label><input id="f-birth" value="${v('birth')}"></div>
       <div class="form-group"><label>Birthplace</label><input id="f-birthplace" value="${v('birthplace')}"></div>
@@ -622,6 +634,7 @@ async function saveMember(){
     name,origin:document.getElementById('f-origin').value.trim(),
     generation:parseInt(document.getElementById('f-gen').value),
     parentIds,spouseId,
+    partnerIds: Array.from(document.getElementById('f-partners').selectedOptions).map(o=>o.value).filter(v=>v&&v!==''),
     birth:document.getElementById('f-birth').value.trim(),
     birthplace:document.getElementById('f-birthplace').value.trim(),
     settingOfBirth:document.getElementById('f-sob').value,
