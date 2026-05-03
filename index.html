@@ -359,9 +359,7 @@ function renderClassic(){
   const tmp=new Set();
   const rootAllocs=roots.map(r=>subtreeAlloc(r,tmp));
   const totalTreeW=rootAllocs.reduce((a,b)=>a+b,0)+HGAP*2*(roots.length-1);
-  const viewW=Math.max(totalTreeW+PAD*2, 800);
-  const startX=(viewW-totalTreeW)/2;
-  let rx=startX;
+  let rx=PAD;
   roots.forEach((r,i)=>{
     place(r, rx, rootAllocs[i], PAD);
     rx+=rootAllocs[i]+HGAP*2;
@@ -374,10 +372,10 @@ function renderClassic(){
     if(pos.y+NH+PAD>maxY)maxY=pos.y+NH+PAD;
   });
   
-  const canvasW=Math.max(viewW, startX*2+totalTreeW+PAD);
+  const canvasW=totalTreeW+PAD*2;
+
+  let html=`<div style="width:100%;overflow:auto;display:flex;justify-content:center;padding-bottom:2rem;"><div style="width:${canvasW}px;height:${maxY}px;position:relative;flex-shrink:0;">`;
   
-  let html=`<div style="width:100%;overflow:auto;"><div style="width:${canvasW}px;height:${maxY}px;position:relative;margin:0 auto;">`;
-    
   members.forEach(m=>{
     const pos=positions[m.id];
     if(!pos)return;
