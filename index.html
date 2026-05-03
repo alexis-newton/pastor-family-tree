@@ -54,7 +54,8 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .toggle-btn{background:var(--cream);border:none;padding:8px 18px;font-family:'Lato',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--stone);cursor:pointer;transition:all .2s;border-right:1px solid var(--parchment-dark);}
 .toggle-btn:last-child{border-right:none;}
 .toggle-btn.active{background:var(--ink);color:var(--parchment);}
-.tree-container{padding:2rem;}
+.tree-container{padding:2rem;overflow:auto;cursor:grab;}
+.tree-container:active{cursor:grabbing;}
 .sync-status{font-size:.72rem;color:var(--stone);display:flex;align-items:center;gap:5px;margin-top:4px;}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--stone-light);}
 .sync-dot.live{background:#5a9e5a;}
@@ -173,8 +174,8 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
       <button class="toggle-btn" id="btn-expand" onclick="setView('expand')">Expandable View</button>
     </div>
   </div>
-  <div class="tree-container">
-    <div id="classic-view" style="display:flex;justify-content:center;width:100%;overflow:auto;cursor:grab;"></div>
+  <div class="tree-container" id="tree-container">
+    <div id="classic-view" style="display:flex;justify-content:center;width:100%;"></div>
     <div id="expand-view" style="display:none;width:100%;"></div>
   </div>
 </div>
@@ -658,7 +659,7 @@ async function deleteMember(id){
 
 // ── DRAG TO SCROLL ────────────────────────────────────────────
 function initDragScroll(el){
-  let isDown=false, startX, startY, scrollLeft, scrollTop;
+  let isDown=false,startX,startY,scrollLeft,scrollTop;
   el.addEventListener('mousedown',e=>{
     isDown=true;
     el.style.cursor='grabbing';
@@ -677,7 +678,6 @@ function initDragScroll(el){
     el.scrollLeft=scrollLeft-(x-startX);
     el.scrollTop=scrollTop-(y-startY);
   });
-  // Touch support for mobile
   el.addEventListener('touchstart',e=>{
     startX=e.touches[0].pageX;
     startY=e.touches[0].pageY;
@@ -691,9 +691,8 @@ function initDragScroll(el){
     el.scrollTop=scrollTop-dy;
   },{passive:true});
 }
-// Init after DOM is ready
 document.addEventListener('DOMContentLoaded',()=>{
-  initDragScroll(document.getElementById('classic-view'));
+  initDragScroll(document.getElementById('tree-container'));
 });
 </script>
 </body>
