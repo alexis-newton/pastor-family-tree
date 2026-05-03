@@ -314,68 +314,59 @@ function renderClassic(){
     c.innerHTML='<div class="empty-state"><div style="font-size:3rem;opacity:.4;margin-bottom:.5rem;">&#127807;</div><p>No family members yet.</p></div>';
     return;
   }
-
   const placed=new Set();
   const roots=members.filter(m=>!hasBloodParent(m)&&!isMarriedIn(m));
   const positions={};
   const lines=[];
 
-  function place(m, allocLeft, allocW, y){
+  function place(m,allocLeft,allocW,y){
     if(placed.has(m.id))return;
     placed.add(m.id);
-    const bloodX=allocLeft;
-    positions[m.id]={x:bloodX, y};
+    positions[m.id]={x:allocLeft,y};
     const sp=m.spouseId?byId(m.spouseId):null;
-    const hasSpouse=sp&&!placed.has(sp.id);
-    if(hasSpouse){
-      placed.add(sp.id);
-      positions[sp.id]={x:bloodX+NW+MLINE, y};
-    }
-    const coupleCx=hasSpouse ? bloodX+NW+MLINE/2 : bloodX+NW/2;
-    const pool=[m.id,...(hasSpouse?[sp.id]:[])];
+    const hasSp=sp&&!placed.has(sp.id);
+    if(hasSp){placed.add(sp.id);positions[sp.id]={x:allocLeft+NW+MLINE,y};}
+    const coupleCx=hasSp?allocLeft+NW+MLINE/2:allocLeft+NW/2;
+    const pool=[m.id,...(hasSp?[sp.id]:[])];
     const kids=members.filter(ch=>!placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
     if(!kids.length)return;
-    const kidY=y+NH+VGAP;
-    const midY=y+NH+VGAP/2;
-    lines.push({type:'v', x:coupleCx, y1:y+NH, y2:midY});
+    const kidY=y+NH+VGAP, midY=y+NH+VGAP/2;
+    lines.push({type:'v',x:coupleCx,y1:y+NH,y2:midY});
     const tmp=new Set([...placed]);
     const kidAllocs=kids.map(ch=>subtreeAlloc(ch,tmp));
     const totalKidsW=kidAllocs.reduce((a,b)=>a+b,0)+HGAP*(kids.length-1);
     let kx=coupleCx-totalKidsW/2;
-    const childBloodCxs=[];
+    const cxs=[];
     kids.forEach((ch,i)=>{
-      const alloc=kidAllocs[i];
-      const chBloodCx=kx+NW/2;
-      place(ch, kx, alloc, kidY);
-      childBloodCxs.push(chBloodCx);
-      lines.push({type:'v', x:chBloodCx, y1:midY, y2:kidY});
-      kx+=alloc+HGAP;
+      const chCx=kx+NW/2;
+      place(ch,kx,kidAllocs[i],kidY);
+      cxs.push(chCx);
+      lines.push({type:'v',x:chCx,y1:midY,y2:kidY});
+      kx+=kidAllocs[i]+HGAP;
     });
-    if(kids.length>1){
-      lines.push({type:'h', y:midY, x1:childBloodCxs[0], x2:childBloodCxs[childBloodCxs.length-1]});
-    }
+    if(kids.length>1)lines.push({type:'h',y:midY,x1:cxs[0],x2:cxs[cxs.length-1]});
   }
 
+  // Compute total tree width and center it
   const tmp=new Set();
   const rootAllocs=roots.map(r=>subtreeAlloc(r,tmp));
   const totalTreeW=rootAllocs.reduce((a,b)=>a+b,0)+HGAP*2*(roots.length-1);
+  const canvasW=totalTreeW+PAD*2;
+
+  // Start layout centered in canvas
   let rx=PAD;
   roots.forEach((r,i)=>{
-    place(r, rx, rootAllocs[i], PAD);
+    place(r,rx,rootAllocs[i],PAD);
     rx+=rootAllocs[i]+HGAP*2;
   });
 
+  // Canvas height
   let maxY=PAD;
-  members.forEach(m=>{
-    const pos=positions[m.id];
-    if(!pos)return;
-    if(pos.y+NH+PAD>maxY)maxY=pos.y+NH+PAD;
-  });
-  
-  const canvasW=totalTreeW+PAD*2;
+  Object.values(positions).forEach(p=>{if(p.y+NH+PAD>maxY)maxY=p.y+NH+PAD;});
 
-  let html=`<div style="width:100%;overflow:auto;display:flex;justify-content:center;padding-bottom:2rem;"><div style="width:${canvasW}px;height:${maxY}px;position:relative;flex-shrink:0;">`;
-  
+  // Render
+  let html=`<div style="text-align:center;overflow:auto;width:100%;"><div style="display:inline-block;position:relative;width:${canvasW}px;height:${maxY}px;text-align:left;">`;
+
   members.forEach(m=>{
     const pos=positions[m.id];
     if(!pos)return;
@@ -391,10 +382,8 @@ function renderClassic(){
 
   html+=`<svg style="position:absolute;top:0;left:0;width:${canvasW}px;height:${maxY}px;overflow:visible;pointer-events:none;">`;
   lines.forEach(l=>{
-    if(l.type==='v')
-      html+=`<line x1="${l.x}" y1="${l.y1}" x2="${l.x}" y2="${l.y2}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
-    else
-      html+=`<line x1="${l.x1}" y1="${l.y}" x2="${l.x2}" y2="${l.y}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
+    if(l.type==='v')html+=`<line x1="${l.x}" y1="${l.y1}" x2="${l.x}" y2="${l.y2}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
+    else html+=`<line x1="${l.x1}" y1="${l.y}" x2="${l.x2}" y2="${l.y}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
   });
   const drawn=new Set();
   members.forEach(m=>{
@@ -406,11 +395,8 @@ function renderClassic(){
     const key=[m.id,sp.id].sort().join('-');
     if(drawn.has(key))return;
     drawn.add(key);
-    const leftPos=pos.x<spPos.x?pos:spPos;
-    const rightPos=pos.x<spPos.x?spPos:pos;
-    const ly=leftPos.y+NH/2;
-    const x1=leftPos.x+NW, x2=rightPos.x;
-    const mx=(x1+x2)/2;
+    const lp=pos.x<spPos.x?pos:spPos, rp=pos.x<spPos.x?spPos:pos;
+    const ly=lp.y+NH/2, x1=lp.x+NW, x2=rp.x, mx=(x1+x2)/2;
     html+=`<line x1="${x1}" y1="${ly}" x2="${x2}" y2="${ly}" stroke="var(--gold)" stroke-width="2"/>`;
     html+=`<text x="${mx}" y="${ly+4}" text-anchor="middle" font-size="10" fill="var(--gold)" font-family="serif">♥</text>`;
   });
