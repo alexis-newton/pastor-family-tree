@@ -140,7 +140,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   <div class="home-hero">
     <div class="hero-ornament">&#9775;</div>
     <h1 class="hero-title">The <span>Pastor</span> Family Tree</h1>
-    <p class="hero-sub">Rooted across continents. Bound by blood. United by story.</p>
+    <p class="hero-sub">Rooted across continents. Bound by blood. United by story. 2</p>
     <div class="hero-divider"></div>
     <div class="hero-origins">
       <div class="origin-badge"><span>🇪🇨</span> Ecuador</div>
@@ -285,16 +285,10 @@ function subtreeAlloc(m,ps){
   const sp=m.spouseId?byId(m.spouseId):null;
   const hasSp=sp&&!ps.has(sp.id);
   const coupleW=NW+(hasSp?MLINE+NW:0);
-  // Include ALL of this person's partners in the pool for finding children
-const allPartnerIds=[
-  ...(hasSp?[sp.id]:[]),
-  ...(m.partnerIds||[])
-];
-const pool=[m.id,...allPartnerIds];
-const kids=members.filter(ch=>!placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
+  const pool=[m.id,...(hasSp?[sp.id]:[]),...(m.partnerIds||[])];
+  const kids=members.filter(ch=>!ps.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
   if(!kids.length)return coupleW;
   const tmp=new Set([...ps,m.id,...(hasSp?[sp.id]:[])]);
-  // Each kid needs at least their own couple footprint worth of space
   const kidsW=kids.reduce((s,ch,i)=>{
     const chSp=ch.spouseId?byId(ch.spouseId):null;
     const chHasSp=chSp&&!tmp.has(chSp.id);
@@ -334,7 +328,7 @@ function renderClassic(){
     // Drop line comes from the couple center
     const coupleCx=hasSp ? bloodLeft+NW+MLINE/2 : bloodCx;
 
-    const pool=[m.id,...(hasSp?[sp.id]:[])];
+    const pool=[m.id,...(hasSp?[sp.id]:[]),...(m.partnerIds||[])];
     const kids=members.filter(ch=>!placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
     if(!kids.length)return bloodCx;
 
