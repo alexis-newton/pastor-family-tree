@@ -466,9 +466,10 @@ function renderClassic(){
 
       const branchCx = extraKx + NW + MLINE/2; // midpoint of dashed line = drop point
 
-      // Horizontal dashed line from blood node right edge to partner left edge
-      // We draw from bloodLeft+NW to partnerX
-      lines.push({type:'extra', x1:bloodLeft+NW, x2:partnerX, y:y+NH/2});
+      // Line goes from blood node LEFT edge all the way to partner LEFT edge,
+      // passing behind Magali's node. z-order: SVG lines render before .pnode divs (which are HTML),
+      // so the line is naturally behind all nodes.
+      lines.push({type:'extra', x1:bloodLeft+NW/2, x2:partnerX+NW/2, y:y+NH/2});
 
       if(partnerKids.length){
         const kidY2=y+NH+VGAP, midY2=y+NH+VGAP/2;
