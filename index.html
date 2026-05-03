@@ -139,7 +139,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   <div class="home-hero">
     <div class="hero-ornament">&#9775;</div>
     <h1 class="hero-title">The <span>Pastor</span> Family Tree</h1>
-    <p class="hero-sub">Rooted across continents. Bound by blood. United by story. 2</p>
+    <p class="hero-sub">Rooted across continents. Bound by blood. United by story.</p>
     <div class="hero-divider"></div>
     <div class="hero-origins">
       <div class="origin-badge"><span>🇪🇨</span> Ecuador</div>
@@ -283,22 +283,17 @@ const NW=124,NH=104,MLINE=24,HGAP=44,VGAP=90,PAD=60;
 function subtreeAlloc(m,ps){
   const sp=m.spouseId?byId(m.spouseId):null;
   const hasSp=sp&&!ps.has(sp.id);
-  // Full couple footprint including spouse
   const coupleW=NW+(hasSp?MLINE+NW:0);
-
   const pool=[m.id,...(hasSp?[sp.id]:[])];
   const kids=members.filter(ch=>!ps.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
   if(!kids.length)return coupleW;
-
   const tmp=new Set([...ps,m.id,...(hasSp?[sp.id]:[])]);
-  // Each kid's allocation must also account for THEIR spouse width
+  // Each kid needs at least their own couple footprint worth of space
   const kidsW=kids.reduce((s,ch,i)=>{
     const chSp=ch.spouseId?byId(ch.spouseId):null;
     const chHasSp=chSp&&!tmp.has(chSp.id);
-    const chAlloc=subtreeAlloc(ch,tmp);
-    // Ensure alloc is at least the couple width of the child
-    const chCoupleW=NW+(chHasSp?MLINE+NW:0);
-    return s+Math.max(chAlloc,chCoupleW)+(i>0?HGAP:0);
+    const chCouple=NW+(chHasSp?MLINE+NW:0);
+    return s+Math.max(subtreeAlloc(ch,tmp),chCouple)+(i>0?HGAP:0);
   },0);
   return Math.max(coupleW,kidsW);
 }
@@ -330,11 +325,21 @@ function renderClassic(){
     let kx=coupleCx-totalKidsW/2;
     const cxs=[];
     kids.forEach((ch,i)=>{
-      const chCx=kx+NW/2;
-      place(ch,kx,kidAllocs[i],kidY);
+      const alloc=kidAllocs[i];
+      // Blood node center = left of allocation + NW/2
+      // But if the child has a spouse, the couple is (NW+MLINE+NW) wide.
+      // We place the blood node so the couple is centered within the allocation.
+      const chSp=ch.spouseId?byId(ch.spouseId):null;
+      const chHasSp=chSp&&!placed.has(chSp.id);
+      const chCoupleW=NW+(chHasSp?MLINE+NW:0);
+      // Center the couple within the allocation
+      const coupleLeft=kx+(alloc-chCoupleW)/2;
+      const bloodLeft=coupleLeft; // blood node is leftmost of couple
+      const chCx=bloodLeft+NW/2; // connector tick at blood node center
+      place(ch,bloodLeft,alloc,kidY);
       cxs.push(chCx);
       lines.push({type:'v',x:chCx,y1:midY,y2:kidY});
-      kx+=kidAllocs[i]+HGAP;
+      kx+=alloc+HGAP;
     });
     if(kids.length>1)lines.push({type:'h',y:midY,x1:cxs[0],x2:cxs[cxs.length-1]});
   }
