@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>The Pastor Family Tree</title>
+<title>The Pastor Family Tree 2</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -53,7 +53,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .toggle-btn{background:var(--cream);border:none;padding:8px 18px;font-family:'Lato',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--stone);cursor:pointer;transition:all .2s;border-right:1px solid var(--parchment-dark);}
 .toggle-btn:last-child{border-right:none;}
 .toggle-btn.active{background:var(--ink);color:var(--parchment);}
-.tree-container{padding:2rem;overflow:auto;display:flex;justify-content:center;align-items:flex-start;}
+.tree-container{padding:2rem;display:flex;justify-content:center;align-items:flex-start;}
 .sync-status{font-size:.72rem;color:var(--stone);display:flex;align-items:center;gap:5px;margin-top:4px;}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--stone-light);}
 .sync-dot.live{background:#5a9e5a;}
@@ -123,6 +123,12 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .firebase-banner strong{color:var(--terracotta);}
 .firebase-banner code{background:var(--parchment-dark);padding:1px 5px;border-radius:3px;font-size:.8rem;}
 .tip{font-size:.78rem;color:var(--stone);line-height:1.5;margin-bottom:1rem;background:var(--parchment);border-radius:6px;padding:.6rem .8rem;border-left:3px solid var(--gold);}
+#classic-view {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow: auto;
+}
 </style>
 </head>
 <body>
