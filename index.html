@@ -139,7 +139,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   <div class="home-hero">
     <div class="hero-ornament">&#9775;</div>
     <h1 class="hero-title">The <span>Pastor</span> Family Tree</h1>
-    <p class="hero-sub">Rooted across continents. Bound by blood. United by story.</p>
+    <p class="hero-sub">Rooted across continents. Bound by blood. United by story. 2</p>
     <div class="hero-divider"></div>
     <div class="hero-origins">
       <div class="origin-badge"><span>🇪🇨</span> Ecuador</div>
@@ -283,12 +283,23 @@ const NW=124,NH=104,MLINE=24,HGAP=44,VGAP=90,PAD=60;
 function subtreeAlloc(m,ps){
   const sp=m.spouseId?byId(m.spouseId):null;
   const hasSp=sp&&!ps.has(sp.id);
+  // Full couple footprint including spouse
   const coupleW=NW+(hasSp?MLINE+NW:0);
+
   const pool=[m.id,...(hasSp?[sp.id]:[])];
   const kids=members.filter(ch=>!ps.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
   if(!kids.length)return coupleW;
+
   const tmp=new Set([...ps,m.id,...(hasSp?[sp.id]:[])]);
-  const kidsW=kids.reduce((s,ch,i)=>s+subtreeAlloc(ch,tmp)+(i>0?HGAP:0),0);
+  // Each kid's allocation must also account for THEIR spouse width
+  const kidsW=kids.reduce((s,ch,i)=>{
+    const chSp=ch.spouseId?byId(ch.spouseId):null;
+    const chHasSp=chSp&&!tmp.has(chSp.id);
+    const chAlloc=subtreeAlloc(ch,tmp);
+    // Ensure alloc is at least the couple width of the child
+    const chCoupleW=NW+(chHasSp?MLINE+NW:0);
+    return s+Math.max(chAlloc,chCoupleW)+(i>0?HGAP:0);
+  },0);
   return Math.max(coupleW,kidsW);
 }
 
