@@ -48,13 +48,13 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .heritage-card .flag{font-size:2.5rem;margin-bottom:.75rem;}
 .heritage-card h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--ink);margin-bottom:.25rem;}
 .heritage-card p{font-size:.85rem;color:var(--stone);line-height:1.6;}
-.tree-header{background:var(--parchment);border-bottom:1px solid var(--parchment-dark);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.tree-header{background:var(--parchment);border-bottom:1px solid var(--parchment-dark);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;position:sticky;top:64px;z-index:99;}
 .tree-header h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--ink);}
 .view-toggle{display:flex;border:1px solid var(--parchment-dark);border-radius:6px;overflow:hidden;}
 .toggle-btn{background:var(--cream);border:none;padding:8px 18px;font-family:'Lato',sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--stone);cursor:pointer;transition:all .2s;border-right:1px solid var(--parchment-dark);}
 .toggle-btn:last-child{border-right:none;}
 .toggle-btn.active{background:var(--ink);color:var(--parchment);}
-.tree-container{padding:2rem;overflow:auto;cursor:grab;}
+.tree-container{padding:2rem;overflow:auto;cursor:grab;height:calc(100vh - 64px - 89px);}
 .tree-container:active{cursor:grabbing;}
 .sync-status{font-size:.72rem;color:var(--stone);display:flex;align-items:center;gap:5px;margin-top:4px;}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--stone-light);}
@@ -140,7 +140,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   <div class="home-hero">
     <div class="hero-ornament">&#9775;</div>
     <h1 class="hero-title">The <span>Pastor</span> Family Tree</h1>
-    <p class="hero-sub">Rooted across continents. Bound by blood. United by story. 3</p>
+    <p class="hero-sub">Rooted across continents. Bound by blood. United by story.</p>
     <div class="hero-divider"></div>
     <div class="hero-origins">
       <div class="origin-badge"><span>🇪🇨</span> Ecuador</div>
@@ -174,8 +174,8 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
       <button class="toggle-btn" id="btn-expand" onclick="setView('expand')">Expandable View</button>
     </div>
   </div>
-  <div class="tree-container" id="tree-container">
-    <div id="classic-view" style="display:flex;justify-content:center;width:100%;"></div>
+  <div class="tree-container">
+    <div id="classic-view" style="width:100%;"></div>
     <div id="expand-view" style="display:none;width:100%;"></div>
   </div>
 </div>
@@ -271,7 +271,7 @@ function showPage(p){
 }
 function setView(v){
   currentView=v;
-  document.getElementById('classic-view').style.display=v==='classic'?'flex':'none';
+  document.getElementById('classic-view').style.display=v==='classic'?'block':'none';
   document.getElementById('expand-view').style.display=v==='expand'?'block':'none';
   document.getElementById('btn-classic').classList.toggle('active',v==='classic');
   document.getElementById('btn-expand').classList.toggle('active',v==='expand');
@@ -385,31 +385,42 @@ function renderClassic(){
     accumulated+=alloc+HGAP*2;
   });
 
-  // Shift everything right if any node went negative
+  // Find actual bounds of all nodes AND lines
   const allPos=Object.values(positions);
-  const minX=Math.min(...allPos.map(p=>p.x));
-  const shift=minX<PAD?PAD-minX:0;
-  if(shift>0){
+  let minX=Infinity, maxX=-Infinity, maxY=0;
+
+  members.forEach(m=>{
+    const pos=positions[m.id]; if(!pos)return;
+    const sp=m.spouseId?byId(m.spouseId):null;
+    const spPos=sp?positions[sp.id]:null;
+    const left=pos.x;
+    const right=spPos?spPos.x+NW:pos.x+NW;
+    if(left<minX)minX=left;
+    if(right>maxX)maxX=right;
+    if(pos.y+NH+PAD>maxY)maxY=pos.y+NH+PAD;
+  });
+  lines.forEach(l=>{
+    if(l.x!=null){if(l.x<minX)minX=l.x;if(l.x>maxX)maxX=l.x;}
+    if(l.x1!=null){
+      if(l.x1<minX)minX=l.x1;if(l.x2<minX)minX=l.x2;
+      if(l.x1>maxX)maxX=l.x1;if(l.x2>maxX)maxX=l.x2;
+    }
+  });
+
+  // Shift everything right so leftmost element is at PAD
+  const shift=PAD-minX;
+  if(shift!==0){
     Object.keys(positions).forEach(id=>{positions[id].x+=shift;});
     lines.forEach(l=>{
       if(l.x!=null)l.x+=shift;
       if(l.x1!=null){l.x1+=shift;l.x2+=shift;}
     });
+    maxX+=shift;
   }
 
-  // Canvas dimensions
-  let maxX=0, maxY=0;
-  members.forEach(m=>{
-    const pos=positions[m.id]; if(!pos)return;
-    const sp=m.spouseId?byId(m.spouseId):null;
-    const spPos=sp?positions[sp.id]:null;
-    const right=(spPos?spPos.x+NW:pos.x+NW)+PAD;
-    if(right>maxX)maxX=right;
-    if(pos.y+NH+PAD>maxY)maxY=pos.y+NH+PAD;
-  });
-  const canvasW=maxX;
+  const canvasW=maxX+PAD;
 
-  let html=`<div style="position:relative;width:${canvasW}px;height:${maxY}px;flex-shrink:0;">`;
+  let html=`<div style="position:relative;width:${canvasW}px;height:${maxY}px;margin:0 auto;">`;
 
   members.forEach(m=>{
     const pos=positions[m.id]; if(!pos)return;
@@ -523,7 +534,7 @@ function renderLogin(){
 }
 function doLogin(){if(document.getElementById('admin-pw').value===ADMIN_PASSWORD){adminLoggedIn=true;renderAdminPanel();}else document.getElementById('login-error').style.display='block';}
 function renderAdminPanel(){
-  const list=[...members].sort((a,b)=>a.name.localeCompare(b.name)).map(m=>{
+  const list=members.map(m=>{
     const sp=m.spouseId?byId(m.spouseId):null;
     const blood=hasBloodParent(m);
     return `<div class="admin-member-row">
@@ -656,44 +667,6 @@ async function deleteMember(id){
     renderTree();renderAdminPanel();
   }
 }
-
-// ── DRAG TO SCROLL ────────────────────────────────────────────
-function initDragScroll(el){
-  let isDown=false,startX,startY,scrollLeft,scrollTop;
-  el.addEventListener('mousedown',e=>{
-    isDown=true;
-    el.style.cursor='grabbing';
-    startX=e.pageX-el.offsetLeft;
-    startY=e.pageY-el.offsetTop;
-    scrollLeft=el.scrollLeft;
-    scrollTop=el.scrollTop;
-  });
-  el.addEventListener('mouseleave',()=>{isDown=false;el.style.cursor='grab';});
-  el.addEventListener('mouseup',()=>{isDown=false;el.style.cursor='grab';});
-  el.addEventListener('mousemove',e=>{
-    if(!isDown)return;
-    e.preventDefault();
-    const x=e.pageX-el.offsetLeft;
-    const y=e.pageY-el.offsetTop;
-    el.scrollLeft=scrollLeft-(x-startX);
-    el.scrollTop=scrollTop-(y-startY);
-  });
-  el.addEventListener('touchstart',e=>{
-    startX=e.touches[0].pageX;
-    startY=e.touches[0].pageY;
-    scrollLeft=el.scrollLeft;
-    scrollTop=el.scrollTop;
-  },{passive:true});
-  el.addEventListener('touchmove',e=>{
-    const dx=e.touches[0].pageX-startX;
-    const dy=e.touches[0].pageY-startY;
-    el.scrollLeft=scrollLeft-dx;
-    el.scrollTop=scrollTop-dy;
-  },{passive:true});
-}
-document.addEventListener('DOMContentLoaded',()=>{
-  initDragScroll(document.getElementById('tree-container'));
-});
 </script>
 </body>
 </html>
