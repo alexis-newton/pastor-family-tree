@@ -285,8 +285,20 @@ function subtreeAlloc(m,ps){
   const sp=m.spouseId?byId(m.spouseId):null;
   const hasSp=sp&&!ps.has(sp.id);
   const coupleW=NW+(hasSp?MLINE+NW:0);
-  const pool=[m.id,...(hasSp?[sp.id]:[]),...(m.partnerIds||[])];
-  const kids=members.filter(ch=>!ps.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
+  // Group children by their specific partnership
+  const primaryPool=[m.id,...(hasSp?[sp.id]:[])];
+  const primaryKids=members.filter(ch=>!placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>primaryPool.includes(pid)));
+  
+  // Additional partnership children — each partner gets their own branch
+  const extraPartners=(m.partnerIds||[]).map(pid=>byId(pid)).filter(Boolean);
+  const extraKids=extraPartners.flatMap(partner=>{
+    const partnerPool=[m.id,partner.id];
+    return members.filter(ch=>!placed.has(ch.id)&&
+      (ch.parentIds||[]).includes(m.id)&&
+      (ch.parentIds||[]).includes(partner.id));
+  });
+  
+  const kids=[...primaryKids,...extraKids.filter(ch=>!primaryKids.find(k=>k.id===ch.id))];
   if(!kids.length)return coupleW;
   const tmp=new Set([...ps,m.id,...(hasSp?[sp.id]:[])]);
   const kidsW=kids.reduce((s,ch,i)=>{
@@ -296,6 +308,27 @@ function subtreeAlloc(m,ps){
     return s+Math.max(subtreeAlloc(ch,tmp),chCouple)+(i>0?HGAP:0);
   },0);
   return Math.max(coupleW,kidsW);
+  // Render extra partner branches
+extraPartners.forEach(partner=>{
+  if(placed.has(partner.id))return;
+  placed.add(partner.id);
+  positions[partner.id]={x:bloodLeft+NW+MLINE, y}; // position to right of blood node
+  const partnerKids=members.filter(ch=>
+    !placed.has(ch.id)&&
+    (ch.parentIds||[]).includes(m.id)&&
+    (ch.parentIds||[]).includes(partner.id)
+  );
+  if(!partnerKids.length)return;
+  // Draw a separate marriage line and drop for this partner
+  const partnerCx=bloodLeft+NW+MLINE/2;
+  const partnerKidY=y+NH+VGAP, partnerMidY=y+NH+VGAP/2;
+  lines.push({type:'v', x:partnerCx, y1:y+NH, y2:partnerMidY});
+  partnerKids.forEach(ch=>{
+    const actualCx=place(ch, cx, subtreeAlloc(ch,new Set([...placed])), partnerKidY);
+    lines.push({type:'v', x:actualCx, y1:partnerMidY, y2:partnerKidY});
+    cx+=subtreeAlloc(ch,new Set([...placed]))+HGAP;
+  });
+});
 }
 
 function renderClassic(){
