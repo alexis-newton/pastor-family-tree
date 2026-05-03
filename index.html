@@ -139,7 +139,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
   <div class="home-hero">
     <div class="hero-ornament">&#9775;</div>
     <h1 class="hero-title">The <span>Pastor</span> Family Tree</h1>
-    <p class="hero-sub">Rooted across continents. Bound by blood. United by story.</p>
+    <p class="hero-sub">Rooted across continents. Bound by blood. United by story. 3</p>
     <div class="hero-divider"></div>
     <div class="hero-origins">
       <div class="origin-badge"><span>🇪🇨</span> Ecuador</div>
@@ -174,7 +174,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
     </div>
   </div>
   <div class="tree-container">
-    <div id="classic-view" style="display:flex;justify-content:center;width:100%;"></div>
+    <div id="classic-view" style="display:flex;justify-content:center;width:100%;overflow:auto;cursor:grab;"></div>
     <div id="expand-view" style="display:none;width:100%;"></div>
   </div>
 </div>
@@ -303,88 +303,115 @@ function renderClassic(){
   if(!members.length){c.innerHTML='<div class="empty-state"><div style="font-size:3rem;opacity:.4;margin-bottom:.5rem;">&#127807;</div><p>No family members yet.</p></div>';return;}
   const placed=new Set();
   const roots=members.filter(m=>!hasBloodParent(m)&&!isMarriedIn(m));
-  const positions={};
-  const lines=[];
+  const positions={};  // id -> {x, y}
+  const lines=[];      // SVG lines
 
-  function place(m,left,allocW,y){
-    if(placed.has(m.id))return;
+  // Place a person's subtree rooted at allocation left edge kx, width allocW.
+  // Returns the actual blood node center x used (for connector tick alignment).
+  function place(m, kx, allocW, y){
+    if(placed.has(m.id))return kx+NW/2;
     placed.add(m.id);
-    positions[m.id]={x:left,y};
+
     const sp=m.spouseId?byId(m.spouseId):null;
     const hasSp=sp&&!placed.has(sp.id);
-    if(hasSp){placed.add(sp.id);positions[sp.id]={x:left+NW+MLINE,y};}
-    const coupleCx=hasSp?left+NW+MLINE/2:left+NW/2;
+    if(hasSp) placed.add(sp.id);
+
+    // Center the couple within the allocation
+    const coupleW=NW+(hasSp?MLINE+NW:0);
+    const coupleLeft=kx+(allocW-coupleW)/2;
+    const bloodLeft=coupleLeft;
+    const bloodCx=bloodLeft+NW/2; // actual blood node center
+
+    positions[m.id]={x:bloodLeft, y};
+    if(hasSp) positions[sp.id]={x:bloodLeft+NW+MLINE, y};
+
+    // Drop line comes from the couple center
+    const coupleCx=hasSp ? bloodLeft+NW+MLINE/2 : bloodCx;
+
     const pool=[m.id,...(hasSp?[sp.id]:[])];
     const kids=members.filter(ch=>!placed.has(ch.id)&&(ch.parentIds||[]).some(pid=>pool.includes(pid)));
-    if(!kids.length)return;
-    const kidY=y+NH+VGAP,midY=y+NH+VGAP/2;
-    lines.push({type:'v',x:coupleCx,y1:y+NH,y2:midY});
+    if(!kids.length)return bloodCx;
+
+    const kidY=y+NH+VGAP, midY=y+NH+VGAP/2;
+    lines.push({type:'v', x:coupleCx, y1:y+NH, y2:midY});
+
     const tmp=new Set([...placed]);
     const kidAllocs=kids.map(ch=>subtreeAlloc(ch,tmp));
     const totalKidsW=kidAllocs.reduce((a,b)=>a+b,0)+HGAP*(kids.length-1);
-    let kx=coupleCx-totalKidsW/2;
-    const cxs=[];
+
+    // Center children under the couple drop point
+    let cx=coupleCx-totalKidsW/2;
+    const childCxs=[];
+
     kids.forEach((ch,i)=>{
       const alloc=kidAllocs[i];
-      // Blood node center = left of allocation + NW/2
-      // But if the child has a spouse, the couple is (NW+MLINE+NW) wide.
-      // We place the blood node so the couple is centered within the allocation.
-      const chSp=ch.spouseId?byId(ch.spouseId):null;
-      const chHasSp=chSp&&!placed.has(chSp.id);
-      const chCoupleW=NW+(chHasSp?MLINE+NW:0);
-      // Center the couple within the allocation
-      const coupleLeft=kx+(alloc-chCoupleW)/2;
-      const bloodLeft=coupleLeft; // blood node is leftmost of couple
-      const chCx=bloodLeft+NW/2; // connector tick at blood node center
-      place(ch,bloodLeft,alloc,kidY);
-      cxs.push(chCx);
-      lines.push({type:'v',x:chCx,y1:midY,y2:kidY});
-      kx+=alloc+HGAP;
+      const actualChCx=place(ch, cx, alloc, kidY);
+      childCxs.push(actualChCx);
+      lines.push({type:'v', x:actualChCx, y1:midY, y2:kidY});
+      cx+=alloc+HGAP;
     });
-    if(kids.length>1)lines.push({type:'h',y:midY,x1:cxs[0],x2:cxs[cxs.length-1]});
+
+    if(kids.length>1){
+      // Horizontal bar spanning all child blood centers
+      lines.push({type:'h', y:midY, x1:childCxs[0], x2:childCxs[childCxs.length-1]});
+      // Connect drop point to the bar if drop is outside the bar range
+      if(coupleCx<childCxs[0])
+        lines.push({type:'h', y:midY, x1:coupleCx, x2:childCxs[0]});
+      else if(coupleCx>childCxs[childCxs.length-1])
+        lines.push({type:'h', y:midY, x1:childCxs[childCxs.length-1], x2:coupleCx});
+    } else {
+      // Single child: draw horizontal elbow from drop to child if they don't align
+      const chCx=childCxs[0];
+      if(Math.abs(coupleCx-chCx)>1)
+        lines.push({type:'h', y:midY, x1:Math.min(coupleCx,chCx), x2:Math.max(coupleCx,chCx)});
+    }
+
+    return bloodCx;
   }
 
+  // Layout roots
   const tmp=new Set();
   const rootAllocs=roots.map(r=>subtreeAlloc(r,tmp));
   const totalTreeW=rootAllocs.reduce((a,b)=>a+b,0)+HGAP*2*(roots.length-1);
-  let rx=PAD;
-  roots.forEach((r,i)=>{place(r,rx,rootAllocs[i],PAD);rx+=rootAllocs[i]+HGAP*2;});
 
-  // Find min x — nodes can go negative when children are wider than parents
+  // Start x: first root's blood node center
+  let rx=PAD+rootAllocs[0]/2; // but we need couple centering for roots too
+  // Recalculate: each root's blood cx = PAD + sum_of_prev_allocs + alloc/2, adjusted for couple centering
+  let accumulated=PAD;
+  roots.forEach((r,i)=>{
+    const alloc=rootAllocs[i];
+    place(r, accumulated, alloc, PAD);
+    accumulated+=alloc+HGAP*2;
+  });
+
+  // Shift everything right if any node went negative
   const allPos=Object.values(positions);
   const minX=Math.min(...allPos.map(p=>p.x));
-  // If any node is left of PAD, shift everything right
   const shift=minX<PAD?PAD-minX:0;
   if(shift>0){
     Object.keys(positions).forEach(id=>{positions[id].x+=shift;});
     lines.forEach(l=>{
-      l.x=(l.x||0)+shift;
+      if(l.x!=null)l.x+=shift;
       if(l.x1!=null){l.x1+=shift;l.x2+=shift;}
     });
   }
 
-  // Canvas width = rightmost node right edge + PAD
-  let maxX=PAD;
+  // Canvas dimensions
+  let maxX=0, maxY=0;
   members.forEach(m=>{
-    const pos=positions[m.id];if(!pos)return;
+    const pos=positions[m.id]; if(!pos)return;
     const sp=m.spouseId?byId(m.spouseId):null;
     const spPos=sp?positions[sp.id]:null;
-    const right=spPos?spPos.x+NW:pos.x+NW;
-    if(right+PAD>maxX)maxX=right+PAD;
+    const right=(spPos?spPos.x+NW:pos.x+NW)+PAD;
+    if(right>maxX)maxX=right;
+    if(pos.y+NH+PAD>maxY)maxY=pos.y+NH+PAD;
   });
   const canvasW=maxX;
 
-  let maxY=PAD;
-  allPos.forEach(p=>{if(p.y+NH+PAD>maxY)maxY=p.y+NH+PAD;});
-
-  /* KEY FIX: just a plain relative div, no flex/text-align tricks.
-     The .tree-container parent has display:flex;justify-content:center
-     so this fixed-width div will be centered automatically. */
   let html=`<div style="position:relative;width:${canvasW}px;height:${maxY}px;flex-shrink:0;">`;
 
   members.forEach(m=>{
-    const pos=positions[m.id];
-    if(!pos)return;
+    const pos=positions[m.id]; if(!pos)return;
     const d=m.birth?(m.death?`${m.birth}–${m.death}`:`b.${m.birth}`):'';
     const av=m.photo&&m.photo.startsWith('data:')?`<img src="${m.photo}">`:`${initials(m.name)}`;
     html+=`<div class="pnode" style="left:${pos.x}px;top:${pos.y}px;" onclick="openProfile('${m.id}')">
@@ -402,22 +429,22 @@ function renderClassic(){
   });
   const drawn=new Set();
   members.forEach(m=>{
-    const pos=positions[m.id];
-    if(!pos||!m.spouseId)return;
+    const pos=positions[m.id]; if(!pos||!m.spouseId)return;
     const sp=byId(m.spouseId);
-    const spPos=sp?positions[sp.id]:null;
-    if(!spPos)return;
+    const spPos=sp?positions[sp.id]:null; if(!spPos)return;
     const key=[m.id,sp.id].sort().join('-');
     if(drawn.has(key))return;
     drawn.add(key);
-    const lp=pos.x<spPos.x?pos:spPos,rp=pos.x<spPos.x?spPos:pos;
-    const ly=lp.y+NH/2,x1=lp.x+NW,x2=rp.x,mx=(x1+x2)/2;
+    const lp=pos.x<spPos.x?pos:spPos, rp=pos.x<spPos.x?spPos:pos;
+    const ly=lp.y+NH/2, x1=lp.x+NW, x2=rp.x, mx=(x1+x2)/2;
     html+=`<line x1="${x1}" y1="${ly}" x2="${x2}" y2="${ly}" stroke="var(--gold)" stroke-width="2"/>`;
     html+=`<text x="${mx}" y="${ly+4}" text-anchor="middle" font-size="10" fill="var(--gold)" font-family="serif">♥</text>`;
   });
   html+='</svg></div>';
   c.innerHTML=html;
 }
+
+
 
 function renderExpand(){
   const c=document.getElementById('expand-view');
@@ -628,6 +655,46 @@ async function deleteMember(id){
     renderTree();renderAdminPanel();
   }
 }
+
+// ── DRAG TO SCROLL ────────────────────────────────────────────
+function initDragScroll(el){
+  let isDown=false, startX, startY, scrollLeft, scrollTop;
+  el.addEventListener('mousedown',e=>{
+    isDown=true;
+    el.style.cursor='grabbing';
+    startX=e.pageX-el.offsetLeft;
+    startY=e.pageY-el.offsetTop;
+    scrollLeft=el.scrollLeft;
+    scrollTop=el.scrollTop;
+  });
+  el.addEventListener('mouseleave',()=>{isDown=false;el.style.cursor='grab';});
+  el.addEventListener('mouseup',()=>{isDown=false;el.style.cursor='grab';});
+  el.addEventListener('mousemove',e=>{
+    if(!isDown)return;
+    e.preventDefault();
+    const x=e.pageX-el.offsetLeft;
+    const y=e.pageY-el.offsetTop;
+    el.scrollLeft=scrollLeft-(x-startX);
+    el.scrollTop=scrollTop-(y-startY);
+  });
+  // Touch support for mobile
+  el.addEventListener('touchstart',e=>{
+    startX=e.touches[0].pageX;
+    startY=e.touches[0].pageY;
+    scrollLeft=el.scrollLeft;
+    scrollTop=el.scrollTop;
+  },{passive:true});
+  el.addEventListener('touchmove',e=>{
+    const dx=e.touches[0].pageX-startX;
+    const dy=e.touches[0].pageY-startY;
+    el.scrollLeft=scrollLeft-dx;
+    el.scrollTop=scrollTop-dy;
+  },{passive:true});
+}
+// Init after DOM is ready
+document.addEventListener('DOMContentLoaded',()=>{
+  initDragScroll(document.getElementById('classic-view'));
+});
 </script>
 </body>
 </html>
