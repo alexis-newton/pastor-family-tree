@@ -59,7 +59,7 @@ nav{background:var(--ink);border-bottom:3px solid var(--gold);padding:0 2rem;dis
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--stone-light);}
 .sync-dot.live{background:#5a9e5a;}
 .sync-dot.error{background:var(--terracotta);}
-.pnode{background:var(--parchment);border:1.5px solid var(--parchment-dark);border-radius:8px;padding:10px 10px 8px;width:120px;text-align:center;cursor:pointer;transition:border-color .2s,box-shadow .2s;position:absolute;}
+.pnode{background:var(--parchment);border:1.5px solid var(--parchment-dark);border-radius:8px;padding:10px 10px 8px;width:120px;text-align:center;cursor:pointer;transition:border-color .2s,box-shadow .2s;position:absolute;z-index:1;}
 .pnode:hover{border-color:var(--gold);box-shadow:0 4px 14px rgba(42,31,14,.13);}
 .pnode-av{width:42px;height:42px;border-radius:50%;margin:0 auto 5px;background:var(--olive);display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--cream);font-weight:700;overflow:hidden;border:2px solid var(--gold);}
 .pnode-av img{width:100%;height:100%;object-fit:cover;}
@@ -466,10 +466,9 @@ function renderClassic(){
 
       const branchCx = extraKx + NW + MLINE/2; // midpoint of dashed line = drop point
 
-      // Line goes from blood node LEFT edge all the way to partner LEFT edge,
-      // passing behind Magali's node. z-order: SVG lines render before .pnode divs (which are HTML),
-      // so the line is naturally behind all nodes.
-      lines.push({type:'extra', x1:bloodLeft+NW/2, x2:partnerX+NW/2, y:y+NH/2});
+      // Horizontal dashed line from blood node right edge to partner left edge
+      // We draw from bloodLeft+NW to partnerX
+      lines.push({type:'extra', x1:bloodLeft+NW, x2:partnerX, y:y+NH/2});
 
       if(partnerKids.length){
         const kidY2=y+NH+VGAP, midY2=y+NH+VGAP/2;
@@ -548,11 +547,20 @@ function renderClassic(){
 
   let html=`<div style="position:relative;width:${canvasW}px;height:${maxY}px;margin:0 auto;">`;
 
+  // LAYER 1 (bottom): Extra/dashed partnership lines — rendered BEFORE nodes so nodes appear on top
+  html+=`<svg style="position:absolute;top:0;left:0;width:${canvasW}px;height:${maxY}px;overflow:visible;pointer-events:none;z-index:0;">`;
+  lines.forEach(l=>{
+    if(l.type==='extra')
+      html+=`<line x1="${l.x1}" y1="${l.y}" x2="${l.x2}" y2="${l.y}" stroke="var(--gold)" stroke-width="2" stroke-dasharray="6,3"/>`;
+  });
+  html+='</svg>';
+
+  // LAYER 2: Node cards — rendered on top of dashed lines
   members.forEach(m=>{
     const pos=positions[m.id]; if(!pos)return;
     const d=m.birth?(m.death?`${m.birth}–${m.death}`:`b.${m.birth}`):'';
     const av=m.photo&&m.photo.startsWith('data:')?`<img src="${m.photo}">`:`${initials(m.name)}`;
-    html+=`<div class="pnode" style="left:${pos.x}px;top:${pos.y}px;" onclick="openProfile('${m.id}')">
+    html+=`<div class="pnode" style="left:${pos.x}px;top:${pos.y}px;z-index:1;" onclick="openProfile('${m.id}')">
       <div class="pnode-flag">${m.origin||''}</div>
       <div class="pnode-av">${av}</div>
       <div class="pnode-name">${m.name}</div>
@@ -560,15 +568,13 @@ function renderClassic(){
     </div>`;
   });
 
-  html+=`<svg style="position:absolute;top:0;left:0;width:${canvasW}px;height:${maxY}px;overflow:visible;pointer-events:none;">`;
-
+  // LAYER 3 (top): Regular connector lines and marriage lines — rendered after nodes
+  html+=`<svg style="position:absolute;top:0;left:0;width:${canvasW}px;height:${maxY}px;overflow:visible;pointer-events:none;z-index:2;">`;
   lines.forEach(l=>{
     if(l.type==='v')
       html+=`<line x1="${l.x}" y1="${l.y1}" x2="${l.x}" y2="${l.y2}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
     else if(l.type==='h')
       html+=`<line x1="${l.x1}" y1="${l.y}" x2="${l.x2}" y2="${l.y}" stroke="var(--parchment-dark)" stroke-width="2"/>`;
-    else if(l.type==='extra')
-      html+=`<line x1="${l.x1}" y1="${l.y}" x2="${l.x2}" y2="${l.y}" stroke="var(--gold)" stroke-width="2" stroke-dasharray="6,3"/>`;
   });
 
   // Marriage lines (primary spouses — solid gold with heart)
