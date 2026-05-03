@@ -534,7 +534,7 @@ function renderLogin(){
 }
 function doLogin(){if(document.getElementById('admin-pw').value===ADMIN_PASSWORD){adminLoggedIn=true;renderAdminPanel();}else document.getElementById('login-error').style.display='block';}
 function renderAdminPanel(){
-  const list=members.map(m=>{
+  const list=[...members].sort((a,b)=>a.name.localeCompare(b.name)).map(m=>{
     const sp=m.spouseId?byId(m.spouseId):null;
     const blood=hasBloodParent(m);
     return `<div class="admin-member-row">
